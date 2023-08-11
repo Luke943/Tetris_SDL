@@ -1,32 +1,34 @@
+#include <iostream>
 #include <SDL.h>
 
-#include <iostream>
+#include "globals.h"
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+SDL_Window* gWindow = nullptr;
+SDL_Surface* gScreenSurface = nullptr;
+SDL_Surface* gRedBlock = nullptr;
+SDL_Surface* gBackground = nullptr;
+SDL_Surface* gPlayFieldBorder = nullptr;
 
 bool init();
 bool loadImages();
 void close();
 SDL_Surface* loadSurface(std::string path);
 
-Uint32 gDropInterval = 1000;
-
-SDL_Window* gWindow = nullptr;
-SDL_Surface* gScreenSurface = nullptr;
-SDL_Surface* gRedBlock = nullptr;
-SDL_Surface* gBackground = nullptr;
-
-
 int main(int argc, char* args[]) {
 	// Start up SDL and create window
 	if (init()) {
 		if (loadImages()) {
 			bool quit = false;
+
 			SDL_Event e;
-			SDL_Rect redRect{};
-			redRect.x = SCREEN_WIDTH / 2 - gRedBlock->w / 2;
-			redRect.y = 0;
+			
+			SDL_Rect activeRect{};
+			activeRect.x = SCREEN_WIDTH / 2 - BLOCK_SIZE / 2;
+			activeRect.y = 0;
+
+			SDL_Rect borderRect{};
+			borderRect.x = SCREEN_WIDTH / 2 - gPlayFieldBorder->w / 2;
+			borderRect.y = 80;
 
 			unsigned int startTime = SDL_GetTicks();
 
@@ -39,21 +41,24 @@ int main(int argc, char* args[]) {
 					else if (e.type == SDL_KEYDOWN) {
 						switch (e.key.keysym.sym) {
 						case SDLK_RIGHT:
-							redRect.x += gRedBlock->w;
+							activeRect.x += BLOCK_SIZE;
 							break;
 						case SDLK_LEFT:
-							redRect.x -= gRedBlock->w;
+							activeRect.x -= BLOCK_SIZE;
 							break;
+						case SDLK_DOWN:
+							activeRect.y += BLOCK_SIZE;
 						}
 					}
 				}
 				if (SDL_GetTicks() - startTime > gDropInterval) {
-					redRect.y += gRedBlock->h;
+					activeRect.y += BLOCK_SIZE;
 					startTime = SDL_GetTicks();
 				}
 
 				SDL_BlitSurface(gBackground, nullptr, gScreenSurface, nullptr);
-				SDL_BlitSurface(gRedBlock, nullptr, gScreenSurface, &redRect);
+				SDL_BlitSurface(gPlayFieldBorder, nullptr, gScreenSurface, &borderRect);
+				SDL_BlitSurface(gRedBlock, nullptr, gScreenSurface, &activeRect);
 				SDL_UpdateWindowSurface(gWindow);
 			}
 		}
@@ -93,6 +98,11 @@ bool loadImages() {
 		return false;
 	}
 
+	gPlayFieldBorder = loadSurface("playfieldborder.bmp");
+	if (!gBackground) {
+		return false;
+	}
+
 	gRedBlock = loadSurface("red.bmp");
 	if (!gRedBlock) {
 		return false;
@@ -101,6 +111,11 @@ bool loadImages() {
 }
 
 void close() {
+	SDL_FreeSurface(gBackground);
+	gBackground = nullptr;
+
+	SDL_FreeSurface(gPlayFieldBorder);
+	gPlayFieldBorder = nullptr;
 
 	SDL_FreeSurface(gRedBlock);
 	gRedBlock = nullptr;

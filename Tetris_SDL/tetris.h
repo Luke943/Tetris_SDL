@@ -1,6 +1,9 @@
 #pragma once
+extern "C"
+{
+#include<SDL.h>
+}
 
-#include <SDL.h>
 #include <string>
 
 #include "globals.h"
@@ -8,7 +11,7 @@
 class Tetris {
 public:
 
-	std::string playField;
+	char playField[PLAY_FIELD_WIDTH * PLAY_FIELD_HEIGHT];
 	unsigned int blockCount = 0;
 	unsigned int score = 0;
 	unsigned int dropTimer = 0;
@@ -16,10 +19,9 @@ public:
 
 	Tetris() {
 		for (int i = 0; i < PLAY_FIELD_WIDTH * PLAY_FIELD_HEIGHT; i++)
-			playField.push_back('.');
-
-
+			playField[i] = -1;
 	}
+
 
 	~Tetris() {
 
@@ -28,3 +30,4 @@ public:
 	//Tetremino spawnTetremino();
 	//bool collisionCheck();
 };
+

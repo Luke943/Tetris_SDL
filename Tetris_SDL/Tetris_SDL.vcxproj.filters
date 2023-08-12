@@ -30,19 +30,28 @@
     <ClCompile Include="tetris.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="playtetris.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="red.bmp">
-      <Filter>Source Files</Filter>
+    <Image Include="tetris.ico">
+      <Filter>Resource Files</Filter>
     </Image>
     <Image Include="background.bmp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </Image>
     <Image Include="playfieldborder.bmp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="mainmenu.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="red.bmp">
+      <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -51,8 +60,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MainWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="playtetris.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Tetris_SDL.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -11,6 +11,7 @@ class MainWindow {
   SDL_Surface* background = nullptr;
   SDL_Surface* playFieldBorder = nullptr;
   SDL_Surface* mainMenu = nullptr;
+  SDL_Surface* cursor = nullptr;
 
  public:
   MainWindow();
@@ -18,6 +19,6 @@ class MainWindow {
 
  private:
   bool loadAssets();
-  bool runLoop();
+  bool mainMenuLoop();
 
 };

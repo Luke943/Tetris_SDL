@@ -4,31 +4,14 @@ extern "C" {
 
 #include <iostream>
 
-#include "MainWindow.h"
 #include "globals.h"
-
-bool init();
-void close();
+#include "MainWindow.h"
+#include "utils.h"
 
 int main(int argc, char* args[]) {
-  std::cout << "Start" << "\n";
-  if (init()) {
+  if (initSDL()) {
     MainWindow mainWindow{};
   }
-  close();
+  closeSDL();
   return 0;
-}
-
-bool init() {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    std::cout << "SDL failed to initialize. SDL_Error: " << SDL_GetError()
-              << "\n";
-    return false;
-  }
-  return true;
-}
-
-void close() {
-  SDL_Quit();
-  std::cout << "Close" << "\n";
 }

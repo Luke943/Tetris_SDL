@@ -5,11 +5,8 @@ extern "C" {
 #include <iostream>
 #include "MainWindow.h"
 #include "globals.h"
-
-SDL_Surface* loadSurface(std::string path) {
-  SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
-  return loadedSurface;
-}
+#include "Tetris.h"
+#include "utils.h"
 
 MainWindow::MainWindow() {
   if (!loadAssets()) {
@@ -25,21 +22,18 @@ MainWindow::MainWindow() {
       this->~MainWindow();
   }
   screenSurface = SDL_GetWindowSurface(window);
-  runLoop();
+  if (mainMenuLoop()) Tetris(window, screenSurface);
 }
 
 MainWindow::~MainWindow() {
   SDL_FreeSurface(background);
   background = nullptr;
 
-  SDL_FreeSurface(playFieldBorder);
-  playFieldBorder = nullptr;
-
-  SDL_FreeSurface(redBlock);
-  redBlock = nullptr;
-
   SDL_FreeSurface(mainMenu);
   mainMenu = nullptr;
+
+  SDL_FreeSurface(cursor);
+  cursor = nullptr;
 
   SDL_DestroyWindow(window);
   window = nullptr;
@@ -53,20 +47,6 @@ bool MainWindow::loadAssets() {
     return false;
   }
 
-  playFieldBorder = loadSurface("playfieldborder.bmp");
-  if (!background) {
-    std::cout << "Error loading playfieldborder.bmp. SDL_Error : "
-              << SDL_GetError() << "\n";
-      return false;
-  }
-
-  redBlock = loadSurface("red.bmp");
-  if (!redBlock) {
-      std::cout << "Error loading red.bmp. SDL_Error : " << SDL_GetError()
-              << "\n";
-      return false;
-  }
-
   mainMenu = loadSurface("mainmenu.bmp");
   if (!mainMenu) {
       std::cout << "Error loading mainmenu.bmp. SDL_Error : " << SDL_GetError()
@@ -74,12 +54,25 @@ bool MainWindow::loadAssets() {
       return false;
   }
 
+   cursor = loadSurface("cursor.bmp");
+  if (!mainMenu) {
+      std::cout << "Error loading cursor.bmp. SDL_Error : " << SDL_GetError()
+                << "\n";
+      return false;
+  }
+
   return true;
 }
 
-bool MainWindow::runLoop() {
+bool MainWindow::mainMenuLoop() {
+  int cursorIndex = 0;
+  SDL_Rect cursorRect{};
+  cursorRect.x = MAINMENU_X - 30;
+  cursorRect.y = MAINMENU_Y;
   SDL_Event e;
   bool quit = false;
+  bool playTetris = false;
+
   while (!quit) {
       while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
@@ -87,16 +80,23 @@ bool MainWindow::runLoop() {
         }
         if (e.type == SDL_KEYDOWN) {
           switch (e.key.keysym.sym) {
-            case SDLK_RIGHT:;
+            case SDLK_DOWN:
+            case SDLK_UP:
+              cursorIndex = 1 - cursorIndex;
+              cursorRect.y = MAINMENU_Y + cursorIndex * MENU_LINE_SIZE;
               break;
-            case SDLK_LEFT:;
+            case SDLK_RETURN:
+              if (cursorIndex == 0) playTetris = true;
+              quit = true;
               break;
-            case SDLK_DOWN:;
           }
         }
       }
+
       SDL_BlitSurface(mainMenu, nullptr, screenSurface, nullptr);
+      SDL_BlitSurface(cursor, nullptr, screenSurface, &cursorRect);
       SDL_UpdateWindowSurface(window);
   }
-  return true;
+
+  return playTetris;
 }

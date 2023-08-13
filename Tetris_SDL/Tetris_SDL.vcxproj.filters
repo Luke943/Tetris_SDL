@@ -27,13 +27,16 @@
     <ClCompile Include="tetremino.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="tetris.h">
+    <ClCompile Include="Tetris.h">
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="MainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="playtetris.cpp">
+    <ClCompile Include="Tetris.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,6 +56,9 @@
     <Image Include="red.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="cursor.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="bitmap_creator.py">
@@ -66,7 +72,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="playtetris.h">
+    <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

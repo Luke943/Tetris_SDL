@@ -1,33 +1,38 @@
 #pragma once
-extern "C"
-{
-#include<SDL.h>
+extern "C" {
+#include <SDL.h>
 }
 
 #include <string>
 
 #include "globals.h"
 
-class Tetris {
-public:
-
-	char playField[PLAY_FIELD_WIDTH * PLAY_FIELD_HEIGHT];
-	unsigned int blockCount = 0;
-	unsigned int score = 0;
-	unsigned int dropTimer = 0;
-	unsigned int blockPos = 0;
-
-	Tetris() {
-		for (int i = 0; i < PLAY_FIELD_WIDTH * PLAY_FIELD_HEIGHT; i++)
-			playField[i] = -1;
-	}
-
-
-	~Tetris() {
-
-	}
-
-	//Tetremino spawnTetremino();
-	//bool collisionCheck();
+enum GAME_COMMAND {
+  NO_GAME_COMMAND,
+  MOVE_LEFT,
+  MOVE_RIGHT,
+  MOVE_DOWN,
+  QUIT_GAME,
+  // PAUSE_GAME
+  // HARD_DROP
+  GAME_COMMANDS_TOTAL
 };
 
+class Tetris {
+  SDL_Window* window = nullptr;
+  SDL_Surface* screenSurface = nullptr;
+  SDL_Surface* background = nullptr;
+  SDL_Surface* playFieldBorder = nullptr;
+  SDL_Surface* redBlock = nullptr;
+
+ public:
+  Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appSurface = nullptr);
+  ~Tetris();
+
+ private:
+  bool loadAssets();
+  int playTetris();
+
+  // Tetremino spawnTetremino();
+  // bool collisionCheck();
+};

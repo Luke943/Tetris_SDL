@@ -140,12 +140,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="globals.h" />
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="playtetris.cpp" />
-    <ClCompile Include="tetris.h" />
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="Tetris.cpp" />
+    <ClCompile Include="Tetris.h" />
     <ClCompile Include="tetremino.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="background.bmp" />
+    <Image Include="cursor.bmp" />
     <Image Include="tetris.ico" />
     <Image Include="mainmenu.bmp" />
     <Image Include="playfieldborder.bmp" />
@@ -155,8 +157,8 @@
     <None Include="bitmap_creator.py" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="utils.h" />
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="playtetris.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

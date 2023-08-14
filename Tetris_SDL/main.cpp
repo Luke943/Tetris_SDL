@@ -4,14 +4,14 @@ extern "C" {
 
 #include <iostream>
 
-#include "globals.h"
-#include "MainWindow.h"
-#include "utils.h"
+#include "globals.hpp"
+#include "MainWindow.hpp"
+#include "utils.hpp"
 
 int main(int argc, char* args[]) {
-  if (initSDL()) {
-    MainWindow mainWindow{};
-  }
-  closeSDL();
-  return 0;
+	if (initSDL()) {
+		MainWindow mainWindow{};
+	}
+	closeSDL();
+	return 0;
 }

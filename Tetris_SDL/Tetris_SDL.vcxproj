@@ -138,31 +138,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="globals.h" />
+    <ClCompile Include="globals.hpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="Tetremino.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="Tetris.cpp" />
-    <ClCompile Include="Tetris.h" />
-    <ClCompile Include="tetremino.h" />
+    <ClCompile Include="Tetris.hpp" />
+    <ClCompile Include="Tetremino.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="background.bmp" />
+    <Image Include="blocks.bmp" />
     <Image Include="cursor.bmp" />
     <Image Include="tetris.ico" />
     <Image Include="mainmenu.bmp" />
     <Image Include="playfieldborder.bmp" />
-    <Image Include="red.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bitmap_creator.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="utils.h" />
-    <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Tetris_SDL.rc" />
+    <ClInclude Include="utils.hpp" />
+    <ClInclude Include="MainWindow.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

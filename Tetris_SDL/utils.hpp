@@ -9,3 +9,4 @@ extern "C" {
 bool initSDL();
 void closeSDL();
 SDL_Surface* loadSurface(std::string path);
+void capFrameRate(unsigned int startTime);

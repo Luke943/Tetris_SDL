@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageColor
 
 # img = Image.new( 'RGB', (255,255), "black") # Create a new black image
 # pixels = img.load() # Create the pixel map
@@ -8,7 +8,14 @@ from PIL import Image
 
 # img.show()
 
-block_size = 24
+block_size = 16
+colours = [ImageColor.getrgb("cyan"),
+           ImageColor.getrgb("red"),
+           ImageColor.getrgb("green"),
+           ImageColor.getrgb("yellow"),
+           ImageColor.getrgb("purple"),
+           ImageColor.getrgb("orange"),
+           ImageColor.getrgb("blue")]
 
 # # Border
 # width = block_size * 12
@@ -31,15 +38,18 @@ block_size = 24
 
 # Red block
 
-width = block_size
+width = block_size * len(colours)
 height = block_size
 img = Image.new('RGB', (width, height))
 pixels = img.load()
-for i in range(block_size):
-    for j in range(block_size):
-        if i == 0 or i == block_size - 1 or j == 0 or j == block_size - 1:
-        	pixels[i,j] = (0xff, 0xff, 0xff)
-        else:
-        	pixels[i,j] = (0xff, 0x00, 0x00)
+for k, colour in enumerate(colours):
+    for i in range(block_size):
+        for j in range(block_size):
+            if i == 0 or i == block_size - 1 or j == 0 or j == block_size - 1:
+        	    pixels[k*block_size + i, j] = ImageColor.getrgb("white")
+            else:
+        	    pixels[k*block_size + i, j] = colour
 
 img.show()
+
+img.save("blocks.bmp")

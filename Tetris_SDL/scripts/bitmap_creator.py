@@ -9,13 +9,17 @@ from PIL import Image, ImageColor
 # img.show()
 
 block_size = 16
-colours = [ImageColor.getrgb("cyan"),
-           ImageColor.getrgb("red"),
-           ImageColor.getrgb("green"),
-           ImageColor.getrgb("yellow"),
-           ImageColor.getrgb("purple"),
-           ImageColor.getrgb("orange"),
-           ImageColor.getrgb("blue")]
+colours = [
+    ImageColor.getrgb("cyan"),
+    ImageColor.getrgb("red"),
+    ImageColor.getrgb("green"),
+    ImageColor.getrgb("yellow"),
+    ImageColor.getrgb("purple"),
+    ImageColor.getrgb("orange"),
+    ImageColor.getrgb("blue"),
+    ImageColor.getrgb("white"),
+    ImageColor.getrgb("gray"),
+]
 
 # # Border
 # width = block_size * 12
@@ -40,15 +44,15 @@ colours = [ImageColor.getrgb("cyan"),
 
 width = block_size * len(colours)
 height = block_size
-img = Image.new('RGB', (width, height))
+img = Image.new("RGB", (width, height))
 pixels = img.load()
 for k, colour in enumerate(colours):
     for i in range(block_size):
         for j in range(block_size):
             if i == 0 or i == block_size - 1 or j == 0 or j == block_size - 1:
-        	    pixels[k*block_size + i, j] = ImageColor.getrgb("white")
+                pixels[k * block_size + i, j] = ImageColor.getrgb("white")
             else:
-        	    pixels[k*block_size + i, j] = colour
+                pixels[k * block_size + i, j] = colour
 
 img.show()
 

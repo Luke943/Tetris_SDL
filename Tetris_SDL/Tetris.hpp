@@ -1,26 +1,26 @@
 #pragma once
-extern "C" {
+
 #include <SDL.h>
-}
 
 #include <string>
-#include "globals.hpp"
 #include "Tetremino.hpp"
 
-enum GAME_COMMAND {
-	NO_COMMAND,
-	MOVE_LEFT,
-	MOVE_RIGHT,
-	MOVE_DOWN,
-	ROTATE_RIGHT,
-	ROTATE_LEFT,
-	QUIT_GAME,
-	// PAUSE_GAME,
-	// HARD_DROP,
-	GAME_COMMANDS_TOTAL
-};
-
 class Tetris {
+	enum GAME_COMMAND {
+		NO_COMMAND,
+		MOVE_LEFT,
+		MOVE_RIGHT,
+		MOVE_DOWN,
+		ROTATE_RIGHT,
+		ROTATE_LEFT,
+		HARD_DROP,
+		PAUSE_GAME,
+		QUIT_GAME,
+		GAME_COMMANDS_TOTAL
+	};
+	
+	const int ROW_CLEAR_POINTS[5] = { 0, 100, 300, 500, 800 };
+
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 	SDL_Surface* background = nullptr;
@@ -35,20 +35,20 @@ class Tetris {
 
 	bool gameOver = false;
 	bool quit = false;
-	unsigned int pieceCount = 0;
-	unsigned int dropInterval = 1000;
+	unsigned int lineCount = 0;
+	unsigned int score = 0;
+	unsigned int level = 1;
+	unsigned int dropInterval = 800;
 	unsigned int dropStartTime{};
-	unsigned int frameStartTime{};
-	GAME_COMMAND activeCommand{};
 	Tetremino activeTetremino{};
 
 public:
 	Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appSurface = nullptr);
 	~Tetris();
+	int playGame();
 
 private:
 	bool loadAssets();
-	int playTetris();
 	GAME_COMMAND getInput();
 	void updateGame(GAME_COMMAND command);
 	void drawToScreen();

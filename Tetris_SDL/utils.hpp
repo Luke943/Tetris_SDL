@@ -1,8 +1,6 @@
 #pragma once
 
-extern "C" {
 #include <SDL.h>
-}
 
 #include <string>
 

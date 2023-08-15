@@ -4,7 +4,7 @@
 #include <vector>
 
 enum TETREMINO_NAME {
-	HERO,            // cyan
+	HERO = 0,        // cyan
 	CLEVELAND_Z,     // red
 	RHODE_ISLAND_Z,  // green
 	SMASHBOY,        // yellow
@@ -14,9 +14,23 @@ enum TETREMINO_NAME {
 	TETREMINO_NAMES_COUNT
 };
 
+enum BLOCK_COLOUR {
+	NO_BLOCK = -1,
+	CYAN,
+	RED,
+	GREEN,
+	YELLOW,
+	PURPLE,
+	ORANGE,
+	BLUE,
+	WHITE,
+	GREY,
+	BLOCK_COLOURS_COUNT
+};
+
 class Tetremino {
 public:
-	TETREMINO_NAME name;
+	BLOCK_COLOUR colour;
 	int x = 0;
 	int y = 0;
 	char shape[4][4];

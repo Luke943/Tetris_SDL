@@ -1,14 +1,18 @@
 #include <string>
 #include "Tetremino.hpp"
-#include "globals.hpp"
+#include "constants.hpp"
 
-const std::string tetreminoShapes[7] = { "..X...X...X...X.", "..X..XX..X......",
-										".X...XX...X.....", "..XX..XX........",
-										"..X..XX...X.....", ".....XX...X...X.",
-										".....XX..X...X.." };
+const std::string tetreminoShapes[7] = { "..X...X...X...X.", // HERO
+										 "..X..XX..X......", // CLEVELAND_Z
+										 ".X...XX...X.....", // RHODE_ISLAND_Z
+										 ".....XX..XX.....", // SMASHBOY
+										 "..X..XX...X.....", // TEEWEE
+										 ".....XX...X...X.", // ORANGE_RICKY
+										 ".....XX..X...X.."  // BLUE_RICKY
+};
 
 Tetremino::Tetremino(TETREMINO_NAME name) {
-	this->name = name;
+	colour = BLOCK_COLOUR(name);
 	x = PLAY_FIELD_WIDTH / 2 - 2;
 	for (int j = 0; j < 4; j++) {
 		for (int i = 0; i < 4; i++) {

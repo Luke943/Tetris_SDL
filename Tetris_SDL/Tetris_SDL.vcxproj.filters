@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="globals.hpp">
+    <ClCompile Include="constants.hpp">
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="Tetremino.hpp">
@@ -57,6 +57,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="blocks.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gameover.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

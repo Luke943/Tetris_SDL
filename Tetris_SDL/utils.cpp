@@ -1,18 +1,13 @@
-extern "C" {
 #include <SDL.h>
-}
 
-//#include <cstdlib>
-//#include <ctime>
 #include <iostream>
 #include <string>
 #include <chrono>
 #include <thread>
-#include "globals.hpp"
+#include "constants.hpp"
 
 bool initSDL() {
-	std::cout << "Start"
-		<< "\n";
+	std::cout << "Start" << "\n";
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		std::cout << "SDL failed to initialize. SDL_Error: " << SDL_GetError() << "\n";
 		return false;
@@ -23,8 +18,7 @@ bool initSDL() {
 
 void closeSDL() {
 	SDL_Quit();
-	std::cout << "Close"
-		<< "\n";
+	std::cout << "Close" << "\n";
 }
 
 SDL_Surface* loadSurface(std::string path) {
@@ -35,6 +29,7 @@ SDL_Surface* loadSurface(std::string path) {
 	return loadedSurface;
 }
 
+// TODO - look up SDL_Delay & LTimer
 void capFrameRate(unsigned int startTime) {
 	unsigned int timeElapsed = SDL_GetTicks() - startTime;
 	if (timeElapsed < FRAME_TIME) {

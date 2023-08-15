@@ -1,13 +1,14 @@
-extern "C" {
 #include <SDL.h>
-}
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <thread>
+#include <chrono>
 
 #include "Tetremino.hpp"
 #include "Tetris.hpp"
-#include "globals.hpp"
+#include "constants.hpp"
 #include "utils.hpp"
 
 Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appSurface) {
@@ -15,6 +16,7 @@ Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appSurface) {
 	screenSurface = appSurface;
 
 	if (!loadAssets()) {
+		std::cout << "Failed to load game assets.\n";
 		this->~Tetris();
 	}
 
@@ -27,13 +29,11 @@ Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appSurface) {
 	blockSelectRect.w = BLOCK_SIZE;
 	blockSelectRect.h = BLOCK_SIZE;
 
-	std::vector<char> playFieldRow(PLAY_FIELD_WIDTH, '.');
+	std::vector<char> playFieldRow(PLAY_FIELD_WIDTH, NO_BLOCK);
 	for (int i = 0; i < PLAY_FIELD_HEIGHT; i++) {
 		playField.push_back(playFieldRow);
 	}
 	activeTetremino = Tetremino::spawnRandom();
-
-	playTetris();
 }
 
 Tetris::~Tetris() {
@@ -69,7 +69,9 @@ bool Tetris::loadAssets() {
 	return true;
 }
 
-int Tetris::playTetris() {
+int Tetris::playGame() {
+	unsigned int frameStartTime{};
+	GAME_COMMAND activeCommand{};
 	dropStartTime = SDL_GetTicks();
 
 	// Core game loop
@@ -82,10 +84,17 @@ int Tetris::playTetris() {
 
 		capFrameRate(frameStartTime);
 	}
-	return true;
+
+	// TODO - game over animation
+	if (gameOver) {
+		return score;
+	}
+	else {
+		return -1;
+	}
 }
 
-GAME_COMMAND Tetris::getInput() {
+Tetris::GAME_COMMAND Tetris::getInput() {
 	SDL_Event e{};
 	GAME_COMMAND playerInput{};
 
@@ -110,6 +119,12 @@ GAME_COMMAND Tetris::getInput() {
 			case SDLK_z:
 				playerInput = ROTATE_LEFT;
 				break;
+			case SDLK_SPACE:
+				playerInput = HARD_DROP;
+				break;
+			case SDLK_RETURN:
+				playerInput = PAUSE_GAME;
+				break;
 			default:
 				playerInput = NO_COMMAND;
 			}
@@ -119,8 +134,10 @@ GAME_COMMAND Tetris::getInput() {
 }
 
 void Tetris::updateGame(GAME_COMMAND command) {
+	bool lockPiece = false;
+
 	// Player input
-	switch (activeCommand) {
+	switch (command) {
 	case QUIT_GAME:
 		quit = true;
 		return;
@@ -141,6 +158,9 @@ void Tetris::updateGame(GAME_COMMAND command) {
 		if (collisionDetected()) {
 			activeTetremino.y -= 1;
 		}
+		else {
+			score += 1;
+		}
 		break;
 	case ROTATE_RIGHT:
 		activeTetremino.rotateRight();
@@ -154,6 +174,18 @@ void Tetris::updateGame(GAME_COMMAND command) {
 			activeTetremino.rotateRight();
 		}
 		break;
+	case HARD_DROP:
+		do {
+			activeTetremino.y += 1;
+			score += 2;
+		} while (!collisionDetected());
+		activeTetremino.y -= 1;
+		score -= 2;
+		lockPiece = true;
+		break;
+	case PAUSE_GAME:
+		;
+		break;
 	}
 
 	// Force down
@@ -161,22 +193,89 @@ void Tetris::updateGame(GAME_COMMAND command) {
 		activeTetremino.y += 1;
 		if (collisionDetected()) {
 			activeTetremino.y -= 1;
-			// TODO - lock in place and spawn new tetremino
+			lockPiece = true;
 		}
 		dropStartTime = SDL_GetTicks();
+	}
+
+	if (lockPiece) {
+		for (int j = 0; j < 4; j++) {
+			for (int i = 0; i < 4; i++) {
+				if (activeTetremino.shape[j][i] != '.') {
+					playField[activeTetremino.y + j][activeTetremino.x + i] = activeTetremino.colour;
+				}
+			}
+		}
+
+		int lineCountCurrent = 0;
+		for (int j = 0; j < PLAY_FIELD_HEIGHT; j++) {
+			if (std::find(playField[j].begin(), playField[j].end(), NO_BLOCK) == playField[j].end()) {
+				lineCountCurrent++;
+				for (int i = 0; i < PLAY_FIELD_WIDTH; i++) {
+					playField[j][i] = WHITE;
+				}
+			}
+		}
+
+		score += ROW_CLEAR_POINTS[lineCountCurrent] * level;
+		lineCount += lineCountCurrent;
+		if (lineCount >= 10) {
+			level++;
+			dropInterval = (dropInterval * 7) / 8;
+			lineCount -= 10;
+		}
+
+		if (lineCountCurrent) {
+			drawToScreen(); // A bit hacky to call this here
+			std::this_thread::sleep_for(std::chrono::milliseconds(dropInterval));
+			int offset = 0;
+			for (int j = PLAY_FIELD_HEIGHT - 1; j >= lineCountCurrent; j--) {
+				if (playField[j][0] == WHITE) {
+					offset++;
+				}
+				else {
+					playField[j + offset] = playField[j];
+				}
+			}
+			for (int j = 0; j < lineCountCurrent; j++) {
+				for (int i = 0; i < PLAY_FIELD_WIDTH; i++) {
+					playField[j][i] = NO_BLOCK;
+				}
+			}
+		}
+
+		activeTetremino = Tetremino::spawnRandom();
+		if (collisionDetected()) {
+			gameOver = true;
+			std::cout << "Game over\n";
+		}
 	}
 }
 
 void Tetris::drawToScreen() {
-	SDL_BlitSurface(background, nullptr, screenSurface, nullptr);
+	// SDL_BlitSurface(background, nullptr, screenSurface, nullptr); // TODO - remove background from Tetris class (not needed if playFieldBorder is solid)
 	SDL_BlitSurface(playFieldBorder, nullptr, screenSurface, &playFieldScreenPosRect);
+	// TODO - show score
 
+	// activeTetremino
 	for (int j = 0; j < 4; j++) {
 		for (int i = 0; i < 4; i++) {
 			if (activeTetremino.shape[j][i] != '.') {
 				blockScreenPosRect.x = playFieldScreenPosRect.x + (1 + activeTetremino.x + i) * BLOCK_SIZE;
 				blockScreenPosRect.y = playFieldScreenPosRect.y + (activeTetremino.y + j) * BLOCK_SIZE;
-				blockSelectRect.x = activeTetremino.name * BLOCK_SIZE;
+				blockSelectRect.x = activeTetremino.colour * BLOCK_SIZE;
+				SDL_BlitSurface(blocks, &blockSelectRect, screenSurface, &blockScreenPosRect);
+			}
+		}
+	}
+
+	// playField
+	for (int j = 0; j < PLAY_FIELD_HEIGHT; j++) {
+		for (int i = 0; i < PLAY_FIELD_WIDTH; i++) {
+			if (playField[j][i] != NO_BLOCK) {
+				blockScreenPosRect.x = playFieldScreenPosRect.x + (1 + i) * BLOCK_SIZE;
+				blockScreenPosRect.y = playFieldScreenPosRect.y + j * BLOCK_SIZE;
+				blockSelectRect.x = playField[j][i] * BLOCK_SIZE;
 				SDL_BlitSurface(blocks, &blockSelectRect, screenSurface, &blockScreenPosRect);
 			}
 		}
@@ -197,7 +296,7 @@ bool Tetris::collisionDetected() {
 				else if (pfy >= PLAY_FIELD_HEIGHT) {
 					return true; // out of bounds bottom
 				}
-				else if (playField[pfy][pfx] != '.') {
+				else if (playField[pfy][pfx] != NO_BLOCK) {
 					return true; // blocks collide
 				}
 			}

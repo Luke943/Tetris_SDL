@@ -11,5 +11,5 @@ const int MENU_LINE_SIZE = 40;
 const size_t PLAY_FIELD_WIDTH = 10;
 const size_t PLAY_FIELD_HEIGHT = 20;
 
-const int FRAME_RATE_CAP = 60;
-const int FRAME_TIME = 1000 / FRAME_RATE_CAP;
+const int FRAME_RATE_CAP = 60;                 // frames per second
+const int FRAME_TIME = 1000 / FRAME_RATE_CAP;  // milliseconds

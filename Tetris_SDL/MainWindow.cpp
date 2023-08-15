@@ -1,12 +1,18 @@
-extern "C" {
 #include <SDL.h>
-}
 
 #include <iostream>
 #include "MainWindow.hpp"
-#include "globals.hpp"
+#include "constants.hpp"
 #include "Tetris.hpp"
 #include "utils.hpp"
+
+enum MENU_OPTION {
+	PLAY = 0,
+	// HIGH_SCORE, // TODO
+	// CONTROLS, // TODO
+	QUIT,
+	MENU_OPTIONS_COUNT
+};
 
 MainWindow::MainWindow() {
 	if (!loadAssets()) {
@@ -19,7 +25,6 @@ MainWindow::MainWindow() {
 		this->~MainWindow();
 	}
 	screenSurface = SDL_GetWindowSurface(window);
-	if (mainMenuLoop()) Tetris(window, screenSurface);
 }
 
 MainWindow::~MainWindow() {
@@ -31,6 +36,9 @@ MainWindow::~MainWindow() {
 
 	SDL_FreeSurface(cursor);
 	cursor = nullptr;
+
+	SDL_FreeSurface(gameOver);
+	gameOver = nullptr;
 
 	SDL_DestroyWindow(window);
 	window = nullptr;
@@ -49,6 +57,12 @@ bool MainWindow::loadAssets() {
 		return false;
 	}
 
+	gameOver = loadSurface("gameover.bmp");
+	if (!mainMenu) {
+		std::cout << "Error loading gameover.bmp. SDL_Error : " << SDL_GetError() << "\n";
+		return false;
+	}
+
 	cursor = loadSurface("cursor.bmp");
 	if (!mainMenu) {
 		std::cout << "Error loading cursor.bmp. SDL_Error : " << SDL_GetError() << "\n";
@@ -58,14 +72,16 @@ bool MainWindow::loadAssets() {
 	return true;
 }
 
-bool MainWindow::mainMenuLoop() {
-	int cursorIndex = 0;
+void MainWindow::run() {
+	MENU_OPTION cursorPosition = PLAY;
 	SDL_Rect cursorRect{};
 	cursorRect.x = MAINMENU_X - 30;
 	cursorRect.y = MAINMENU_Y;
+	SDL_Rect menuRect{};
 	SDL_Event e;
+	bool mainMenuView = true;
+	bool play = false;
 	bool quit = false;
-	bool playTetris = false;
 	unsigned int frameStartTime{};
 
 	while (!quit) {
@@ -78,24 +94,49 @@ bool MainWindow::mainMenuLoop() {
 			if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
 				case SDLK_DOWN:
+					cursorPosition = MENU_OPTION((cursorPosition + 1) % MENU_OPTIONS_COUNT);
+					break;
 				case SDLK_UP:
-					cursorIndex = 1 - cursorIndex;
-					cursorRect.y = MAINMENU_Y + cursorIndex * MENU_LINE_SIZE;
+					cursorPosition = MENU_OPTION((cursorPosition - 1) % MENU_OPTIONS_COUNT);
 					break;
 				case SDLK_RETURN:
-					if (cursorIndex == 0) playTetris = true;
-					quit = true;
+					if (mainMenuView) {
+						switch (cursorPosition) {
+						case PLAY:
+							play = true;
+							break;
+						case QUIT:
+							quit = true;
+							break;
+						}
+					}
+					mainMenuView = !mainMenuView;
 					break;
 				}
 			}
 		}
-
-		SDL_BlitSurface(mainMenu, nullptr, screenSurface, nullptr);
-		SDL_BlitSurface(cursor, nullptr, screenSurface, &cursorRect);
+		if (play) {
+			Tetris tetris(window, screenSurface);
+			int score = tetris.playGame();
+			if (score < 0) {
+				quit = true;
+			}
+			else {
+				play = false;
+				menuRect.x = (SCREEN_WIDTH - gameOver->w) / 2;
+				menuRect.y = (SCREEN_HEIGHT - gameOver->h) / 2;
+				SDL_BlitSurface(gameOver, nullptr, screenSurface, &menuRect);
+			}
+		}
+		
+		if (mainMenuView) {
+			SDL_BlitSurface(background, nullptr, screenSurface, nullptr);
+			SDL_BlitSurface(mainMenu, nullptr, screenSurface, nullptr);
+			cursorRect.y = MAINMENU_Y + cursorPosition * MENU_LINE_SIZE;
+			SDL_BlitSurface(cursor, nullptr, screenSurface, &cursorRect);
+		}
+		
 		SDL_UpdateWindowSurface(window);
-
 		capFrameRate(frameStartTime);
 	}
-
-	return playTetris;
 }

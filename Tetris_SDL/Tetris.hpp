@@ -37,6 +37,7 @@ class Tetris {
 
 	bool gameOver = false;
 	bool quit = false;
+	bool pause = false;
 	unsigned int lineCount = 0;
 	unsigned int score = 0;
 	unsigned int level = 1;

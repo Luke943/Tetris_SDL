@@ -130,7 +130,12 @@ Tetris::GAME_COMMAND Tetris::getInput() {
 			}
 		}
 	}
-	return playerInput;
+	if (!pause) {
+		return playerInput;
+	}
+	else {
+		return (playerInput == QUIT_GAME || playerInput == PAUSE_GAME) ? playerInput : NO_COMMAND;
+	}
 }
 
 void Tetris::updateGame(GAME_COMMAND command) {
@@ -184,8 +189,12 @@ void Tetris::updateGame(GAME_COMMAND command) {
 		lockPiece = true;
 		break;
 	case PAUSE_GAME:
-		;
+		pause = !pause;
 		break;
+	}
+
+	if (pause) {
+		return;
 	}
 
 	// Force down
@@ -316,7 +325,7 @@ bool Tetris::gameOverAnimation() {
 			drawBlock(i, j, GREY);
 		}
 		SDL_UpdateWindowSurface(window);
-		SDL_Delay(j*j);
+		SDL_Delay(j * j);
 	}
 	return true;
 }

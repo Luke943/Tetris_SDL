@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include <iostream>
 #include <string>
@@ -13,11 +14,19 @@ bool initSDL() {
 		std::cout << "SDL failed to initialize. SDL_Error: " << SDL_GetError() << "\n";
 		return false;
 	}
+
+	if (TTF_Init() == -1)
+	{
+		std::cout << "SDL_ttf could not initialize. SDL_ttf Error: " << TTF_GetError() << "\n";
+		return false;
+	}
+
 	srand((unsigned)time(NULL));
 	return true;
 }
 
 void closeSDL() {
+	TTF_Quit();
 	SDL_Quit();
 	std::cout << "Close" << "\n";
 }
@@ -25,9 +34,17 @@ void closeSDL() {
 SDL_Surface* loadSurface(std::string path) {
 	SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
 	if (!loadedSurface) {
-		std::cout << "Unable to load image" << path.c_str() << "!SDL Error : " << SDL_GetError() << "\n";
+		std::cout << "Unable to load image " << path.c_str() << ". SDL Error: " << SDL_GetError() << "\n";
 	}
 	return loadedSurface;
+}
+
+TTF_Font* loadFont(std::string path) {
+	TTF_Font* loadedFont = TTF_OpenFont(path.c_str(), FONT_SIZE);
+	if (!loadedFont) {
+		std::cout << "Unable to load font " << path.c_str() << ". TTF Error: " << TTF_GetError() << "\n";
+	}
+	return loadedFont;
 }
 
 void capFrameRate(unsigned int startTime) {

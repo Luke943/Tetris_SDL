@@ -8,7 +8,7 @@ from PIL import Image, ImageColor
 
 # img.show()
 
-block_size = 16
+block_size = 24
 colours = [
     ImageColor.getrgb("cyan"),
     ImageColor.getrgb("red"),
@@ -21,26 +21,26 @@ colours = [
     ImageColor.getrgb("gray"),
 ]
 
-# # Border
-# width = block_size * 12
-# height = block_size * 21
-# img = Image.new('RGB', (width, height))
-# pixels = img.load()
-# for i in range(block_size):
-#     for j in range(height):
-#         pixels[i,j] = (0x88, 0x88, 0x88)
-# for i in range(width - block_size, width):
-#     for j in range(height):
-#         pixels[i,j] = (0x88, 0x88, 0x88)
-# for i in range(width):
-#     for j in range(height - block_size, height):
-#         pixels[i,j] = (0x88, 0x88, 0x88)
+# Border
+width = block_size * 12
+height = block_size * 21
+img = Image.new("RGB", (width, height))
+pixels = img.load()
+for i in range(block_size):
+    for j in range(height):
+        pixels[i, j] = (0x88, 0x88, 0x88)
+for i in range(width - block_size, width):
+    for j in range(height):
+        pixels[i, j] = (0x88, 0x88, 0x88)
+for i in range(width):
+    for j in range(height - block_size, height):
+        pixels[i, j] = (0x88, 0x88, 0x88)
 
-# img.show()
+img.show()
 
-# img.save("playfieldborder.bmp")
+img.save("playfieldborder.bmp")
 
-# Red block
+# Blocks
 
 width = block_size * len(colours)
 height = block_size

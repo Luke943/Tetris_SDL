@@ -1,18 +1,11 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include <iostream>
 #include "MainWindow.hpp"
 #include "constants.hpp"
 #include "Tetris.hpp"
 #include "utils.hpp"
-
-enum MENU_OPTION {
-	PLAY = 0,
-	// HIGH_SCORE, // TODO
-	// CONTROLS, // TODO
-	QUIT,
-	MENU_OPTIONS_COUNT
-};
 
 MainWindow::MainWindow() {
 	if (!loadAssets()) {
@@ -31,14 +24,13 @@ MainWindow::~MainWindow() {
 	SDL_FreeSurface(background);
 	background = nullptr;
 
-	SDL_FreeSurface(mainMenu);
-	mainMenu = nullptr;
+	for (int i = 0; i < MENUS_COUNT; i++) {
+		SDL_FreeSurface(menuScreens[i]);
+		menuScreens[i] = nullptr;
+	}
 
 	SDL_FreeSurface(cursor);
 	cursor = nullptr;
-
-	SDL_FreeSurface(gameOver);
-	gameOver = nullptr;
 
 	SDL_DestroyWindow(window);
 	window = nullptr;
@@ -47,42 +39,49 @@ MainWindow::~MainWindow() {
 bool MainWindow::loadAssets() {
 	background = loadSurface("background.bmp");
 	if (!background) {
-		std::cout << "Error loading background.bmp. SDL_Error : " << SDL_GetError() << "\n";
 		return false;
 	}
-
-	mainMenu = loadSurface("mainmenu.bmp");
-	if (!mainMenu) {
-		std::cout << "Error loading mainmenu.bmp. SDL_Error : " << SDL_GetError() << "\n";
-		return false;
-	}
-
-	gameOver = loadSurface("gameover.bmp");
-	if (!mainMenu) {
-		std::cout << "Error loading gameover.bmp. SDL_Error : " << SDL_GetError() << "\n";
-		return false;
-	}
-
+	
 	cursor = loadSurface("cursor.bmp");
-	if (!mainMenu) {
-		std::cout << "Error loading cursor.bmp. SDL_Error : " << SDL_GetError() << "\n";
+	if (!cursor) {
 		return false;
 	}
+
+	font = loadFont("gamefont.ttf");
+	if (!font) {
+		return false;
+	}
+
+	menuScreens[MAIN_MENU] = TTF_RenderUTF8_Solid_Wrapped(font, "PLAY\nHIGH SCORES\nCONTROLS\nQUIT", textColour, 0);
+	menuScreens[HIGHSCORES_MENU] = TTF_RenderUTF8_Solid_Wrapped(font, "HIGH\nSCORES\nPLACE\nHOLDER", textColour, 0);
+	menuScreens[CONTROLS_MENU] = TTF_RenderUTF8_Solid_Wrapped(
+		font,
+		"              CONTROLS\n"
+		"Left arrow:     Move left\n"
+		"Right arrow:   Move right\n"
+		"Down arrow:  Force down\n"
+		"Spacebar:       Hard drop\n"
+		"Z:                       Rotate left\n"
+		"X:                       Rotate right\n"
+		"Return:            Pause game",
+		textColour, 0
+	);
 
 	return true;
 }
 
+
 void MainWindow::run() {
-	MENU_OPTION cursorPosition = PLAY;
+	std::cout << "Running MainWindow.\n";
+	MAIN_MENU_OPTION cursorPosition = PLAY;
 	SDL_Rect cursorRect{};
-	cursorRect.x = MAINMENU_X - 30;
-	cursorRect.y = MAINMENU_Y;
-	SDL_Rect menuRect{};
+	cursorRect.x = (SCREEN_WIDTH - menuScreens[MAIN_MENU]->w) / 2 - 30;
+	cursorRect.y = (SCREEN_HEIGHT - menuScreens[MAIN_MENU]->h) / 2;
 	SDL_Event e;
-	bool mainMenuView = true;
 	bool play = false;
 	bool quit = false;
 	unsigned int frameStartTime{};
+	MENU activeMenu = MAIN_MENU;
 
 	while (!quit) {
 		frameStartTime = SDL_GetTicks();
@@ -92,30 +91,38 @@ void MainWindow::run() {
 				quit = true;
 			}
 			if (e.type == SDL_KEYDOWN) {
-				switch (e.key.keysym.sym) {
-				case SDLK_DOWN:
-					cursorPosition = MENU_OPTION((cursorPosition + 1) % MENU_OPTIONS_COUNT);
-					break;
-				case SDLK_UP:
-					cursorPosition = MENU_OPTION((cursorPosition - 1) % MENU_OPTIONS_COUNT);
-					break;
-				case SDLK_RETURN:
-					if (mainMenuView) {
+				if (activeMenu != MAIN_MENU) {
+					activeMenu = MAIN_MENU;
+				}
+				else {
+					switch (e.key.keysym.sym) {
+					case SDLK_DOWN:
+						cursorPosition = MAIN_MENU_OPTION((cursorPosition + 1) % MAIN_MENU_OPTIONS_COUNT);
+						break;
+					case SDLK_UP:
+						cursorPosition = MAIN_MENU_OPTION((cursorPosition - 1 + MAIN_MENU_OPTIONS_COUNT) % MAIN_MENU_OPTIONS_COUNT);
+						break;
+					case SDLK_RETURN:
 						switch (cursorPosition) {
 						case PLAY:
 							play = true;
+							break;
+						case HIGH_SCORES:
+							activeMenu = HIGHSCORES_MENU;
+							break;
+						case CONTROLS:
+							activeMenu = CONTROLS_MENU;
 							break;
 						case QUIT:
 							quit = true;
 							break;
 						}
 					}
-					mainMenuView = !mainMenuView;
-					break;
 				}
 			}
 		}
 		if (play) {
+			std::cout << "Starting game.\n";
 			Tetris tetris(window, screenSurface);
 			int score = tetris.playGame();
 			if (score < 0) {
@@ -123,20 +130,27 @@ void MainWindow::run() {
 			}
 			else {
 				play = false;
-				menuRect.x = (SCREEN_WIDTH - gameOver->w) / 2;
-				menuRect.y = (SCREEN_HEIGHT - gameOver->h) / 2;
-				SDL_BlitSurface(gameOver, nullptr, screenSurface, &menuRect);
+				activeMenu = GAME_OVER_SCREEN;
+				std::string displayString = "Game Over\nScore: ";
+				displayString.append(std::to_string(score));
+				menuScreens[GAME_OVER_SCREEN] = TTF_RenderUTF8_Solid_Wrapped(font, displayString.c_str(), textColour, 0);
 			}
 		}
 		
-		if (mainMenuView) {
-			SDL_BlitSurface(background, nullptr, screenSurface, nullptr);
-			SDL_BlitSurface(mainMenu, nullptr, screenSurface, nullptr);
-			cursorRect.y = MAINMENU_Y + cursorPosition * MENU_LINE_SIZE;
+		SDL_BlitSurface(background, nullptr, screenSurface, nullptr);
+		displayMenu(activeMenu);
+		if (activeMenu == MAIN_MENU) {
+			cursorRect.y = (SCREEN_HEIGHT - menuScreens[MAIN_MENU]->h) / 2 + cursorPosition * FONT_SIZE;
 			SDL_BlitSurface(cursor, nullptr, screenSurface, &cursorRect);
-		}
-		
+		}	
 		SDL_UpdateWindowSurface(window);
+		
 		capFrameRate(frameStartTime);
 	}
+}
+
+void MainWindow::displayMenu(MENU menu) {
+	menuRect.x = (SCREEN_WIDTH - menuScreens[menu]->w) / 2;
+	menuRect.y = (SCREEN_HEIGHT - menuScreens[menu]->h) / 2;
+	SDL_BlitSurface(menuScreens[menu], nullptr, screenSurface, &menuRect);
 }

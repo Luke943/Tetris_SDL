@@ -2,9 +2,10 @@
 
 #include <iostream>
 #include <string>
-#include <chrono>
-#include <thread>
 #include "constants.hpp"
+
+const int FRAME_RATE_CAP = 60;                 // frames per second
+const int FRAME_TIME = 1000 / FRAME_RATE_CAP;  // milliseconds
 
 bool initSDL() {
 	std::cout << "Start" << "\n";
@@ -29,10 +30,9 @@ SDL_Surface* loadSurface(std::string path) {
 	return loadedSurface;
 }
 
-// TODO - look up SDL_Delay & LTimer
 void capFrameRate(unsigned int startTime) {
 	unsigned int timeElapsed = SDL_GetTicks() - startTime;
 	if (timeElapsed < FRAME_TIME) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_TIME - timeElapsed));
+		SDL_Delay(FRAME_TIME - timeElapsed);
 	}
 }

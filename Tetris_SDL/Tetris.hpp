@@ -20,6 +20,8 @@ class Tetris {
 	};
 	
 	const int ROW_CLEAR_POINTS[5] = { 0, 100, 300, 500, 800 };
+	const int PLAY_FIELD_WIDTH = 10;
+	const int PLAY_FIELD_HEIGHT = 20;
 
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
@@ -31,7 +33,7 @@ class Tetris {
 	SDL_Rect blockScreenPosRect{};
 	SDL_Rect blockSelectRect{};
 
-	std::vector<std::vector<char>> playField{};
+	std::vector<std::vector<BLOCK_COLOUR>> playField{};
 
 	bool gameOver = false;
 	bool quit = false;
@@ -56,4 +58,7 @@ private:
 	bool collisionDetected();
 	// void tetreminoLock();
 	// int lineCheck();
+
+	void drawBlock(int xPos, int yPos, BLOCK_COLOUR colour);
+	bool gameOverAnimation();
 };

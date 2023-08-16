@@ -3,8 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <thread>
-#include <chrono>
 
 #include "Tetremino.hpp"
 #include "Tetris.hpp"
@@ -29,11 +27,12 @@ Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appSurface) {
 	blockSelectRect.w = BLOCK_SIZE;
 	blockSelectRect.h = BLOCK_SIZE;
 
-	std::vector<char> playFieldRow(PLAY_FIELD_WIDTH, NO_BLOCK);
+	std::vector<BLOCK_COLOUR> playFieldRow(PLAY_FIELD_WIDTH, NO_BLOCK);
 	for (int i = 0; i < PLAY_FIELD_HEIGHT; i++) {
 		playField.push_back(playFieldRow);
 	}
 	activeTetremino = Tetremino::spawnRandom();
+	activeTetremino.x = PLAY_FIELD_WIDTH / 2 - 2;
 }
 
 Tetris::~Tetris() {
@@ -87,11 +86,12 @@ int Tetris::playGame() {
 
 	// TODO - game over animation
 	if (gameOver) {
-		return score;
+		if (gameOverAnimation()) {
+			return score;
+		}
 	}
-	else {
-		return -1;
-	}
+
+	return -1;
 }
 
 Tetris::GAME_COMMAND Tetris::getInput() {
@@ -227,7 +227,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 
 		if (lineCountCurrent) {
 			drawToScreen(); // A bit hacky to call this here
-			std::this_thread::sleep_for(std::chrono::milliseconds(dropInterval));
+			SDL_Delay(dropInterval);
 			int offset = 0;
 			for (int j = PLAY_FIELD_HEIGHT - 1; j >= lineCountCurrent; j--) {
 				if (playField[j][0] == WHITE) {
@@ -245,6 +245,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 		}
 
 		activeTetremino = Tetremino::spawnRandom();
+		activeTetremino.x = PLAY_FIELD_WIDTH / 2 - 2;
 		if (collisionDetected()) {
 			gameOver = true;
 			std::cout << "Game over\n";
@@ -253,7 +254,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 }
 
 void Tetris::drawToScreen() {
-	// SDL_BlitSurface(background, nullptr, screenSurface, nullptr); // TODO - remove background from Tetris class (not needed if playFieldBorder is solid)
+	SDL_BlitSurface(background, nullptr, screenSurface, nullptr); // TODO after sorting menus - remove background from Tetris class (not needed if playFieldBorder is solid)
 	SDL_BlitSurface(playFieldBorder, nullptr, screenSurface, &playFieldScreenPosRect);
 	// TODO - show score
 
@@ -261,10 +262,7 @@ void Tetris::drawToScreen() {
 	for (int j = 0; j < 4; j++) {
 		for (int i = 0; i < 4; i++) {
 			if (activeTetremino.shape[j][i] != '.') {
-				blockScreenPosRect.x = playFieldScreenPosRect.x + (1 + activeTetremino.x + i) * BLOCK_SIZE;
-				blockScreenPosRect.y = playFieldScreenPosRect.y + (activeTetremino.y + j) * BLOCK_SIZE;
-				blockSelectRect.x = activeTetremino.colour * BLOCK_SIZE;
-				SDL_BlitSurface(blocks, &blockSelectRect, screenSurface, &blockScreenPosRect);
+				drawBlock(activeTetremino.x + i, activeTetremino.y + j, activeTetremino.colour);
 			}
 		}
 	}
@@ -273,10 +271,7 @@ void Tetris::drawToScreen() {
 	for (int j = 0; j < PLAY_FIELD_HEIGHT; j++) {
 		for (int i = 0; i < PLAY_FIELD_WIDTH; i++) {
 			if (playField[j][i] != NO_BLOCK) {
-				blockScreenPosRect.x = playFieldScreenPosRect.x + (1 + i) * BLOCK_SIZE;
-				blockScreenPosRect.y = playFieldScreenPosRect.y + j * BLOCK_SIZE;
-				blockSelectRect.x = playField[j][i] * BLOCK_SIZE;
-				SDL_BlitSurface(blocks, &blockSelectRect, screenSurface, &blockScreenPosRect);
+				drawBlock(i, j, playField[j][i]);
 			}
 		}
 	}
@@ -291,16 +286,37 @@ bool Tetris::collisionDetected() {
 				int pfx = activeTetremino.x + i;
 				int pfy = activeTetremino.y + j;
 				if (pfx < 0 || pfx >= PLAY_FIELD_WIDTH) {
-					return true; // out of bounds left/right
+					return true;
 				}
 				else if (pfy >= PLAY_FIELD_HEIGHT) {
-					return true; // out of bounds bottom
+					return true;
 				}
 				else if (playField[pfy][pfx] != NO_BLOCK) {
-					return true; // blocks collide
+					return true;
 				}
 			}
 		}
 	}
 	return false;
+}
+
+void Tetris::drawBlock(int xPos, int yPos, BLOCK_COLOUR colour) {
+	blockScreenPosRect.x = playFieldScreenPosRect.x + (1 + xPos) * BLOCK_SIZE;
+	blockScreenPosRect.y = playFieldScreenPosRect.y + yPos * BLOCK_SIZE;
+	blockSelectRect.x = colour * BLOCK_SIZE;
+	SDL_BlitSurface(blocks, &blockSelectRect, screenSurface, &blockScreenPosRect);
+}
+
+bool Tetris::gameOverAnimation() {
+	for (int j = PLAY_FIELD_HEIGHT - 1; j >= 0; j--) {
+		if (getInput() == QUIT_GAME) {
+			return false;
+		}
+		for (int i = 0; i < PLAY_FIELD_WIDTH; i++) {
+			drawBlock(i, j, GREY);
+		}
+		SDL_UpdateWindowSurface(window);
+		SDL_Delay(j*j);
+	}
+	return true;
 }

@@ -11,12 +11,11 @@ const std::string tetreminoShapes[7] = { "..X...X...X...X.", // HERO
 										 ".....XX..X...X.."  // BLUE_RICKY
 };
 
-Tetremino::Tetremino(TETREMINO_NAME name) {
-	colour = BLOCK_COLOUR(name);
-	x = PLAY_FIELD_WIDTH / 2 - 2;
+Tetremino::Tetremino(int i) {
+	colour = BLOCK_COLOUR(i % 7);
 	for (int j = 0; j < 4; j++) {
 		for (int i = 0; i < 4; i++) {
-			shape[j][i] = tetreminoShapes[name][j * 4 + i];
+			shape[j][i] = tetreminoShapes[colour][j * 4 + i];
 		}
 	}
 }
@@ -42,6 +41,5 @@ void Tetremino::rotateLeft() {
 }
 
 Tetremino Tetremino::spawnRandom() {
-	int i = rand() % TETREMINO_NAMES_COUNT;
-	return Tetremino(TETREMINO_NAME(i));
+	return Tetremino(rand());
 }

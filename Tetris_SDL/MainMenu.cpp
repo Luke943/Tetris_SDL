@@ -2,25 +2,27 @@
 #include <SDL_ttf.h>
 
 #include <iostream>
-#include "MainWindow.hpp"
+#include <memory>
+#include "MainMenu.hpp"
 #include "constants.hpp"
 #include "Tetris.hpp"
 #include "utils.hpp"
 
-MainWindow::MainWindow() {
+MainMenu::MainMenu() {
+	
 	if (!loadAssets()) {
-		this->~MainWindow();
+		this->~MainMenu();
 	}
 
 	window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	if (!window) {
 		std::cout << "Error creating window. SDL_Error : " << SDL_GetError() << "\n";
-		this->~MainWindow();
+		this->~MainMenu();
 	}
 	screenSurface = SDL_GetWindowSurface(window);
 }
 
-MainWindow::~MainWindow() {
+MainMenu::~MainMenu() {
 	SDL_FreeSurface(background);
 	background = nullptr;
 
@@ -36,7 +38,7 @@ MainWindow::~MainWindow() {
 	window = nullptr;
 }
 
-bool MainWindow::loadAssets() {
+bool MainMenu::loadAssets() {
 	background = loadSurface("background.bmp");
 	if (!background) {
 		return false;
@@ -47,7 +49,7 @@ bool MainWindow::loadAssets() {
 		return false;
 	}
 
-	font = loadFont("gamefont.ttf");
+	font = loadFont(FONT_NAME);
 	if (!font) {
 		return false;
 	}
@@ -71,8 +73,8 @@ bool MainWindow::loadAssets() {
 }
 
 
-void MainWindow::run() {
-	std::cout << "Running MainWindow.\n";
+void MainMenu::run() {
+	std::cout << "Running MainMenu.\n";
 	MAIN_MENU_OPTION cursorPosition = PLAY;
 	SDL_Rect cursorRect{};
 	cursorRect.x = (SCREEN_WIDTH - menuScreens[MAIN_MENU]->w) / 2 - 30;
@@ -123,8 +125,9 @@ void MainWindow::run() {
 		}
 		if (play) {
 			std::cout << "Starting game.\n";
-			Tetris tetris(window, screenSurface);
-			int score = tetris.playGame();
+			std::unique_ptr<Tetris> tetris = std::make_unique<Tetris>(window, font);
+			//Tetris tetris = Tetris(window, font);
+			int score = tetris->playGame();
 			if (score < 0) {
 				quit = true;
 			}
@@ -149,7 +152,7 @@ void MainWindow::run() {
 	}
 }
 
-void MainWindow::displayMenu(MENU menu) {
+void MainMenu::displayMenu(MENU menu) {
 	menuRect.x = (SCREEN_WIDTH - menuScreens[menu]->w) / 2;
 	menuRect.y = (SCREEN_HEIGHT - menuScreens[menu]->h) / 2;
 	SDL_BlitSurface(menuScreens[menu], nullptr, screenSurface, &menuRect);

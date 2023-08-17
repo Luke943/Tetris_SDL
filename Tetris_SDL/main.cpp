@@ -1,11 +1,11 @@
-#include "MainWindow.hpp"
+#include "MainMenu.hpp"
 #include "utils.hpp"
 
 int main(int argc, char* args[]) {
 	if (initSDL()) {
-		MainWindow mainWindow{};
-		if (mainWindow.loadAssets()) {
-			mainWindow.run();
+		MainMenu mainMenu{};
+		if (mainMenu.loadAssets()) {
+			mainMenu.run();
 		}
 	}
 	closeSDL();

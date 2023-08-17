@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-class MainWindow {
+class MainMenu {
 	enum MAIN_MENU_OPTION {
 		PLAY = 0,
 		HIGH_SCORES,
@@ -31,8 +31,8 @@ class MainWindow {
 	SDL_Rect menuRect{};
 
 public:
-	MainWindow();
-	~MainWindow();
+	MainMenu();
+	~MainMenu();
 	bool loadAssets();
 	void run();
 

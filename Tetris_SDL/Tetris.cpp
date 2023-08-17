@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include <iostream>
 #include <vector>
@@ -9,17 +10,20 @@
 #include "constants.hpp"
 #include "utils.hpp"
 
-Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appSurface) {
+Tetris::Tetris(SDL_Window* appWindow, TTF_Font* appFont) {
 	window = appWindow;
-	screenSurface = appSurface;
+	screenSurface = SDL_GetWindowSurface(window);
+	font = appFont;
 
 	if (!loadAssets()) {
 		std::cout << "Failed to load game assets.\n";
 		this->~Tetris();
 	}
-
+	
 	playFieldScreenPosRect.x = SCREEN_WIDTH / 2 - playFieldBorder->w / 2;
 	playFieldScreenPosRect.y = SCREEN_HEIGHT / 2 - playFieldBorder->h / 2;
+	playFieldScreenPosRect.w = playFieldBorder->w;
+	playFieldScreenPosRect.h = playFieldBorder->h;
 
 	blockScreenPosRect.w = BLOCK_SIZE;
 	blockScreenPosRect.h = BLOCK_SIZE;
@@ -27,12 +31,16 @@ Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appSurface) {
 	blockSelectRect.w = BLOCK_SIZE;
 	blockSelectRect.h = BLOCK_SIZE;
 
+	if (!drawTextOnBackground()) {
+		std::cout << "Failed to draw text to background.\n";
+		this->~Tetris();
+	}
+
 	std::vector<BLOCK_COLOUR> playFieldRow(PLAY_FIELD_WIDTH, NO_BLOCK);
 	for (int i = 0; i < PLAY_FIELD_HEIGHT; i++) {
 		playField.push_back(playFieldRow);
 	}
-	activeTetremino = Tetremino::spawnRandom();
-	activeTetremino.x = PLAY_FIELD_WIDTH / 2 - 2;
+
 }
 
 Tetris::~Tetris() {
@@ -40,10 +48,10 @@ Tetris::~Tetris() {
 	background = nullptr;
 
 	SDL_FreeSurface(playFieldBorder);
-	background = nullptr;
+	playFieldBorder = nullptr;
 
 	SDL_FreeSurface(blocks);
-	background = nullptr;
+	blocks = nullptr;
 }
 
 bool Tetris::loadAssets() {
@@ -68,9 +76,47 @@ bool Tetris::loadAssets() {
 	return true;
 }
 
+bool Tetris::drawTextOnBackground() {
+	SDL_Surface* tmpSurface = nullptr;
+	SDL_Rect tmpRect{};
+	
+	tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, "High score", textColour, 0);
+	if (!tmpSurface) {
+		return false;
+	}
+	tmpRect.y = playFieldScreenPosRect.y + 8 * BLOCK_SIZE;
+	tmpRect.x = playFieldScreenPosRect.x - 7 * BLOCK_SIZE;
+	SDL_BlitSurface(tmpSurface, nullptr, background, &tmpRect);
+	SDL_FreeSurface(tmpSurface);
+	tmpSurface = nullptr;
+
+	tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, "Score", textColour, 0);
+	if (!tmpSurface) {
+		return false;
+	}
+	tmpRect.y = playFieldScreenPosRect.y + 4 * BLOCK_SIZE;
+	tmpRect.x = playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE;
+	SDL_BlitSurface(tmpSurface, nullptr, background, &tmpRect);
+	SDL_FreeSurface(tmpSurface);
+	tmpSurface = nullptr;
+
+	tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, "Level", textColour, 0);
+	if (!tmpSurface) {
+		return false;
+	}
+	tmpRect.y = playFieldScreenPosRect.y + 12 * BLOCK_SIZE;
+	tmpRect.x = playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE;
+	SDL_BlitSurface(tmpSurface, nullptr, background, &tmpRect);
+	SDL_FreeSurface(tmpSurface);
+	tmpSurface = nullptr;
+
+	return true;
+}
+
 int Tetris::playGame() {
 	unsigned int frameStartTime{};
 	GAME_COMMAND activeCommand{};
+	spawnTetremino();
 	dropStartTime = SDL_GetTicks();
 
 	// Core game loop
@@ -84,7 +130,6 @@ int Tetris::playGame() {
 		capFrameRate(frameStartTime);
 	}
 
-	// TODO - game over animation
 	if (gameOver) {
 		if (gameOverAnimation()) {
 			return score;
@@ -140,7 +185,7 @@ Tetris::GAME_COMMAND Tetris::getInput() {
 
 void Tetris::updateGame(GAME_COMMAND command) {
 	bool lockPiece = false;
-
+	
 	// Player input
 	switch (command) {
 	case QUIT_GAME:
@@ -238,7 +283,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 			drawToScreen(); // A bit hacky to call this here
 			SDL_Delay(dropInterval);
 			int offset = 0;
-			for (int j = PLAY_FIELD_HEIGHT - 1; j >= lineCountCurrent; j--) {
+			for (int j = PLAY_FIELD_HEIGHT - 1; j >= 0; j--) {
 				if (playField[j][0] == WHITE) {
 					offset++;
 				}
@@ -253,8 +298,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 			}
 		}
 
-		activeTetremino = Tetremino::spawnRandom();
-		activeTetremino.x = PLAY_FIELD_WIDTH / 2 - 2;
+		spawnTetremino();
 		if (collisionDetected()) {
 			gameOver = true;
 			std::cout << "Game over\n";
@@ -328,4 +372,9 @@ bool Tetris::gameOverAnimation() {
 		SDL_Delay(j * j);
 	}
 	return true;
+}
+
+void Tetris::spawnTetremino() {
+	activeTetremino = Tetremino(rand());
+	activeTetremino.x = PLAY_FIELD_WIDTH / 2 - 2;
 }

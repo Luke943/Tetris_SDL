@@ -39,7 +39,3 @@ void Tetremino::rotateLeft() {
 		for (int i = 0; i < 4; i++) shape[j][i] = tmp[j][i];
 	}
 }
-
-Tetremino Tetremino::spawnRandom() {
-	return Tetremino(rand());
-}

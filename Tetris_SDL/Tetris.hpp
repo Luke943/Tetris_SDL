@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include <string>
 #include "Tetremino.hpp"
@@ -18,6 +19,14 @@ class Tetris {
 		QUIT_GAME,
 		GAME_COMMANDS_TOTAL
 	};
+
+	enum TEXT_BOXES {
+		SCORE_BOX,
+		LEVEL_BOX,
+		HIGHSCORE_BOX,
+		PAUSE_BOX,
+		TEXT_BOXES_TOTAL
+	};
 	
 	const int ROW_CLEAR_POINTS[5] = { 0, 100, 300, 500, 800 };
 	const int PLAY_FIELD_WIDTH = 10;
@@ -25,13 +34,18 @@ class Tetris {
 
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
+	TTF_Font* font = nullptr;
 	SDL_Surface* background = nullptr;
 	SDL_Surface* playFieldBorder = nullptr;
 	SDL_Surface* blocks = nullptr;
+	SDL_Surface* textBox[TEXT_BOXES_TOTAL]{};
+
+	SDL_Color textColour = { 0xff, 0xff, 0xff };
 
 	SDL_Rect playFieldScreenPosRect{};
 	SDL_Rect blockScreenPosRect{};
 	SDL_Rect blockSelectRect{};
+	SDL_Rect textBoxRect[TEXT_BOXES_TOTAL];
 
 	std::vector<std::vector<BLOCK_COLOUR>> playField{};
 
@@ -46,16 +60,19 @@ class Tetris {
 	Tetremino activeTetremino{};
 
 public:
-	Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appSurface = nullptr);
+	Tetris(SDL_Window* appWindow = nullptr, TTF_Font* appFont = nullptr);
 	~Tetris();
 	int playGame();
 
 private:
 	bool loadAssets();
+	bool drawTextOnBackground();
+
 	GAME_COMMAND getInput();
 	void updateGame(GAME_COMMAND command);
 	void drawToScreen();
 
+	void spawnTetremino();
 	bool collisionDetected();
 	// void tetreminoLock();
 	// int lineCheck();

@@ -28,5 +28,4 @@ public:
 	Tetremino(int i = 0);
 	void rotateRight();
 	void rotateLeft();
-	static Tetremino spawnRandom();
 };

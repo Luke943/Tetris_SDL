@@ -125,18 +125,16 @@ void MainMenu::run() {
 		}
 		if (play) {
 			std::cout << "Starting game.\n";
-			std::unique_ptr<Tetris> tetris = std::make_unique<Tetris>(window, font);
-			//Tetris tetris = Tetris(window, font);
-			int score = tetris->playGame();
+			//std::unique_ptr<Tetris> tetris = std::make_unique<Tetris>(window, screenSurface, font);
+			Tetris tetris(window, screenSurface, font);
+			int score = tetris.playGame();
+			tetris.~Tetris();
 			if (score < 0) {
 				quit = true;
 			}
 			else {
 				play = false;
-				activeMenu = GAME_OVER_SCREEN;
-				std::string displayString = "Game Over\nScore: ";
-				displayString.append(std::to_string(score));
-				menuScreens[GAME_OVER_SCREEN] = TTF_RenderUTF8_Solid_Wrapped(font, displayString.c_str(), textColour, 0);
+				activeMenu = MAIN_MENU;
 			}
 		}
 		

@@ -4,15 +4,16 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <utility>
 
 #include "Tetremino.hpp"
 #include "Tetris.hpp"
 #include "constants.hpp"
 #include "utils.hpp"
 
-Tetris::Tetris(SDL_Window* appWindow, TTF_Font* appFont) {
+Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appWindowSurface, TTF_Font* appFont) {
 	window = appWindow;
-	screenSurface = SDL_GetWindowSurface(window);
+	screenSurface = appWindowSurface;
 	font = appFont;
 
 	if (!loadAssets()) {
@@ -31,8 +32,16 @@ Tetris::Tetris(SDL_Window* appWindow, TTF_Font* appFont) {
 	blockSelectRect.w = BLOCK_SIZE;
 	blockSelectRect.h = BLOCK_SIZE;
 
-	if (!drawTextOnBackground()) {
-		std::cout << "Failed to draw text to background.\n";
+	highScorePos = { playFieldScreenPosRect.x - 7 * FONT_SIZE , playFieldScreenPosRect.y + 11 * BLOCK_SIZE };
+	scorePos = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 6 * BLOCK_SIZE };
+	levelPos = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 14 * BLOCK_SIZE };
+
+	bool success = true;
+	success &= drawTextToSurface("High Score", background, highScorePos.first, highScorePos.second - FONT_SIZE);
+	success &= drawTextToSurface("Score", background, scorePos.first, scorePos.second - FONT_SIZE);
+	success &= drawTextToSurface("Level", background, levelPos.first, levelPos.second - FONT_SIZE);
+	if (!success) {
+		std::cout << "Error drawing text to background\n";
 		this->~Tetris();
 	}
 
@@ -76,40 +85,17 @@ bool Tetris::loadAssets() {
 	return true;
 }
 
-bool Tetris::drawTextOnBackground() {
-	SDL_Surface* tmpSurface = nullptr;
+bool Tetris::drawTextToSurface(std::string text, SDL_Surface* dst, int xPos, int yPos) {
+	SDL_Surface* tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, text.c_str(), textColour, 0);
+	if (!tmpSurface) {
+		return false;
+	}
 	SDL_Rect tmpRect{};
-	
-	tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, "High score", textColour, 0);
-	if (!tmpSurface) {
-		return false;
-	}
-	tmpRect.y = playFieldScreenPosRect.y + 8 * BLOCK_SIZE;
-	tmpRect.x = playFieldScreenPosRect.x - 7 * BLOCK_SIZE;
-	SDL_BlitSurface(tmpSurface, nullptr, background, &tmpRect);
+	tmpRect.y = yPos;
+	tmpRect.x = xPos;
+	SDL_BlitSurface(tmpSurface, nullptr, dst, &tmpRect);
 	SDL_FreeSurface(tmpSurface);
 	tmpSurface = nullptr;
-
-	tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, "Score", textColour, 0);
-	if (!tmpSurface) {
-		return false;
-	}
-	tmpRect.y = playFieldScreenPosRect.y + 4 * BLOCK_SIZE;
-	tmpRect.x = playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE;
-	SDL_BlitSurface(tmpSurface, nullptr, background, &tmpRect);
-	SDL_FreeSurface(tmpSurface);
-	tmpSurface = nullptr;
-
-	tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, "Level", textColour, 0);
-	if (!tmpSurface) {
-		return false;
-	}
-	tmpRect.y = playFieldScreenPosRect.y + 12 * BLOCK_SIZE;
-	tmpRect.x = playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE;
-	SDL_BlitSurface(tmpSurface, nullptr, background, &tmpRect);
-	SDL_FreeSurface(tmpSurface);
-	tmpSurface = nullptr;
-
 	return true;
 }
 
@@ -255,7 +241,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 	if (lockPiece) {
 		for (int j = 0; j < 4; j++) {
 			for (int i = 0; i < 4; i++) {
-				if (activeTetremino.shape[j][i] != '.') {
+				if (activeTetremino.shape[j][i] != '.' && activeTetremino.y + j >= 0) {
 					playField[activeTetremino.y + j][activeTetremino.x + i] = activeTetremino.colour;
 				}
 			}
@@ -307,14 +293,18 @@ void Tetris::updateGame(GAME_COMMAND command) {
 }
 
 void Tetris::drawToScreen() {
-	SDL_BlitSurface(background, nullptr, screenSurface, nullptr); // TODO after sorting menus - remove background from Tetris class (not needed if playFieldBorder is solid)
+	SDL_BlitSurface(background, nullptr, screenSurface, nullptr);
 	SDL_BlitSurface(playFieldBorder, nullptr, screenSurface, &playFieldScreenPosRect);
-	// TODO - show score
+	
+	// scores
+	drawTextToSurface("xxxxxxx", screenSurface, highScorePos.first, highScorePos.second);
+	drawTextToSurface(std::to_string(score), screenSurface, scorePos.first, scorePos.second);
+	drawTextToSurface(std::to_string(level), screenSurface, levelPos.first, levelPos.second);
 
 	// activeTetremino
 	for (int j = 0; j < 4; j++) {
 		for (int i = 0; i < 4; i++) {
-			if (activeTetremino.shape[j][i] != '.') {
+			if (activeTetremino.shape[j][i] != '.' && activeTetremino.y + j >= 0) {
 				drawBlock(activeTetremino.x + i, activeTetremino.y + j, activeTetremino.colour);
 			}
 		}
@@ -338,6 +328,9 @@ bool Tetris::collisionDetected() {
 			if (activeTetremino.shape[j][i] != '.') {
 				int pfx = activeTetremino.x + i;
 				int pfy = activeTetremino.y + j;
+				if (pfy < 0) {
+					continue;
+				}
 				if (pfx < 0 || pfx >= PLAY_FIELD_WIDTH) {
 					return true;
 				}
@@ -371,10 +364,41 @@ bool Tetris::gameOverAnimation() {
 		SDL_UpdateWindowSurface(window);
 		SDL_Delay(j * j);
 	}
+
+	SDL_Surface* textSurface = TTF_RenderUTF8_Solid_Wrapped(font, "Game Over", textColour, 0);
+	SDL_Surface* scoreSurface = TTF_RenderUTF8_Solid_Wrapped(font, std::string("Score: ").append(std::to_string(score)).c_str(), textColour, 0);
+	SDL_Surface* tmpBackground = SDL_CreateRGBSurface(0, std::max(textSurface->w, scoreSurface->w) + FONT_SIZE, textSurface->h + scoreSurface->h + FONT_SIZE, 32, 0, 0, 0, 255);
+	SDL_FillRect(tmpBackground, NULL, SDL_MapRGB(tmpBackground->format, 0, 0, 0));
+	
+	SDL_Rect tmpRect{};
+	tmpRect.x = (SCREEN_WIDTH - tmpBackground->w) / 2;
+	tmpRect.y = (SCREEN_HEIGHT - tmpBackground->h) / 2;
+	SDL_BlitSurface(tmpBackground, nullptr, screenSurface, &tmpRect);
+	SDL_FreeSurface(tmpBackground);
+	tmpRect.x = (SCREEN_WIDTH - textSurface->w) / 2;
+	tmpRect.y = SCREEN_HEIGHT / 2 - textSurface->h;
+	SDL_BlitSurface(textSurface, nullptr, screenSurface, &tmpRect);
+	SDL_FreeSurface(textSurface);
+	tmpRect.x = (SCREEN_WIDTH - scoreSurface->w) / 2;
+	tmpRect.y = SCREEN_HEIGHT / 2;
+	SDL_BlitSurface(scoreSurface, nullptr, screenSurface, &tmpRect);
+	SDL_FreeSurface(scoreSurface);
+
+	SDL_UpdateWindowSurface(window);
+
+	GAME_COMMAND command = NO_COMMAND;
+	while (command == NO_COMMAND) { 
+		command = getInput();
+		if (command == QUIT_GAME) {
+			return false;
+		}
+	}
+
 	return true;
 }
 
 void Tetris::spawnTetremino() {
 	activeTetremino = Tetremino(rand());
 	activeTetremino.x = PLAY_FIELD_WIDTH / 2 - 2;
+	activeTetremino.y = -2;
 }

@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 
 #include <string>
+#include <utility>
 #include "Tetremino.hpp"
 
 class Tetris {
@@ -38,7 +39,6 @@ class Tetris {
 	SDL_Surface* background = nullptr;
 	SDL_Surface* playFieldBorder = nullptr;
 	SDL_Surface* blocks = nullptr;
-	SDL_Surface* textBox[TEXT_BOXES_TOTAL]{};
 
 	SDL_Color textColour = { 0xff, 0xff, 0xff };
 
@@ -46,6 +46,10 @@ class Tetris {
 	SDL_Rect blockScreenPosRect{};
 	SDL_Rect blockSelectRect{};
 	SDL_Rect textBoxRect[TEXT_BOXES_TOTAL];
+
+	std::pair<int, int> highScorePos{};
+	std::pair<int, int> scorePos{};
+	std::pair<int, int> levelPos{};
 
 	std::vector<std::vector<BLOCK_COLOUR>> playField{};
 
@@ -60,13 +64,13 @@ class Tetris {
 	Tetremino activeTetremino{};
 
 public:
-	Tetris(SDL_Window* appWindow = nullptr, TTF_Font* appFont = nullptr);
+	Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appWindowSurface = nullptr, TTF_Font* appFont = nullptr);
 	~Tetris();
 	int playGame();
 
 private:
 	bool loadAssets();
-	bool drawTextOnBackground();
+	bool drawTextToSurface(std::string srcText, SDL_Surface* dst, int xPos, int yPos);
 
 	GAME_COMMAND getInput();
 	void updateGame(GAME_COMMAND command);

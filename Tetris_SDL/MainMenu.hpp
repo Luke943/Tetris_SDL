@@ -16,7 +16,6 @@ class MainMenu {
 		MAIN_MENU = 0,
 		HIGHSCORES_MENU,
 		CONTROLS_MENU,
-		GAME_OVER_SCREEN,
 		MENUS_COUNT
 	};
 

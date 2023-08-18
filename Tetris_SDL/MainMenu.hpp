@@ -31,12 +31,14 @@ class MainMenu {
 	int highScore{};
 
 public:
+	bool initSuccess = false;
+
 	MainMenu();
 	~MainMenu();
-	bool loadAssets();
 	void run();
 
 private:
+	bool loadAssets();
 	void displayMenu(MENU menu);
 	int getHighScore();
 	bool saveHighScore(int score);

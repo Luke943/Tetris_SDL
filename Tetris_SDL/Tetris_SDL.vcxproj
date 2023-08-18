@@ -147,12 +147,11 @@
     <ClCompile Include="Tetremino.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="background.bmp" />
     <Image Include="blocks.bmp" />
     <Image Include="cursor.bmp" />
     <Image Include="gameover.bmp" />
     <Image Include="tetris.ico" />
-    <Image Include="mainmenu.bmp" />
+    <Image Include="menubackground.bmp" />
     <Image Include="playfieldborder.bmp" />
   </ItemGroup>
   <ItemGroup>

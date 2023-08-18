@@ -15,15 +15,16 @@ MainMenu::MainMenu() {
 	highScore = getHighScore();
 
 	if (!loadAssets()) {
-		this->~MainMenu();
+		return;
 	}
 
 	window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	if (!window) {
 		std::cout << "Error creating window. SDL_Error : " << SDL_GetError() << "\n";
-		this->~MainMenu();
+		return;
 	}
 	screenSurface = SDL_GetWindowSurface(window);
+	initSuccess = true;
 }
 
 MainMenu::~MainMenu() {
@@ -43,7 +44,7 @@ MainMenu::~MainMenu() {
 }
 
 bool MainMenu::loadAssets() {
-	background = loadSurface("background.bmp");
+	background = loadSurface("menubackground.bmp");
 	if (!background) {
 		return false;
 	}
@@ -180,7 +181,10 @@ bool MainMenu::saveHighScore(int score) {
 bool MainMenu::playTetris() {
 	std::cout << "Starting game.\n";
 	Tetris tetris(window, screenSurface, font, highScore);
-	int score = tetris.playGame();
+	if (!tetris.initSuccess) {
+		return false;
+	}
+	int	score = tetris.playGame();
 	tetris.~Tetris();
 	if (score < 0) {
 		return false;

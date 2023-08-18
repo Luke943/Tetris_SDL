@@ -19,7 +19,7 @@ Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appWindowSurface, TTF_Font* a
 
 	if (!loadAssets()) {
 		std::cout << "Failed to load game assets.\n";
-		this->~Tetris();
+		return;
 	}
 	
 	playFieldScreenPosRect.x = SCREEN_WIDTH / 2 - playFieldBorder->w / 2;
@@ -33,14 +33,14 @@ Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appWindowSurface, TTF_Font* a
 
 	if (!createTextBoxes()) {
 		std::cout << "Error creating text boxes\n";
-		this->~Tetris();
+		return;
 	}
 
 	std::vector<BLOCK_COLOUR> playFieldRow(PLAY_FIELD_WIDTH, NO_BLOCK);
 	for (int i = 0; i < PLAY_FIELD_HEIGHT; i++) {
 		playField.push_back(playFieldRow);
 	}
-
+	initSuccess = true;
 }
 
 Tetris::~Tetris() {
@@ -55,14 +55,14 @@ Tetris::~Tetris() {
 }
 
 bool Tetris::loadAssets() {
-	background = loadSurface("background.bmp");
+	background = SDL_CreateRGBSurface(0, screenSurface->w, screenSurface->h, 32, 0, 0, 0, 255);
 	if (!background) {
-		std::cout << "Error loading background.bmp. SDL_Error : " << SDL_GetError() << "\n";
+		std::cout << "Error creating background surface\n";
 		return false;
 	}
 
 	playFieldBorder = loadSurface("playfieldborder.bmp");
-	if (!background) {
+	if (!playFieldBorder) {
 		std::cout << "Error loading playfieldborder.bmp. SDL_Error : " << SDL_GetError() << "\n";
 		return false;
 	}
@@ -78,7 +78,7 @@ bool Tetris::loadAssets() {
 
 bool Tetris::createTextBoxes() {
 	textBoxRect[HIGHSCORE_BOX] = { playFieldScreenPosRect.x - 7 * FONT_SIZE, playFieldScreenPosRect.y + 11 * BLOCK_SIZE - FONT_SIZE, 0, 0 };
-	textBoxRect[SCORE_BOX] = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 6 * BLOCK_SIZE - FONT_SIZE, 0, 0 };
+	textBoxRect[SCORE_BOX] = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 8 * BLOCK_SIZE - FONT_SIZE, 0, 0 };
 	textBoxRect[LEVEL_BOX] = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 14 * BLOCK_SIZE - FONT_SIZE, 0, 0 };
 
 	bool success = true;
@@ -96,7 +96,6 @@ bool Tetris::createTextBoxes() {
 	if (!pauseText || !pauseSurface) {
 		return false;
 	}
-	SDL_FillRect(pauseSurface, nullptr, SDL_MapRGB(pauseSurface->format, 0, 0, 0));
 	SDL_Rect tmpRect = { (pauseSurface->w - pauseText->w) / 2, (pauseSurface->h - pauseText->h) / 2, 0, 0 };
 	success &= drawTextToSurface("Game paused", pauseSurface, &tmpRect);
 	textBoxRect[PAUSE_BOX] = { playFieldScreenPosRect.x + BLOCK_SIZE, playFieldScreenPosRect.y, 0, 0};
@@ -187,7 +186,7 @@ Tetris::GAME_COMMAND Tetris::getInput() {
 void Tetris::updateGame(GAME_COMMAND command) {
 	bool lockPiece = false;
 	
-	// Player input
+	// Update for player input
 	switch (command) {
 	case QUIT_GAME:
 		quit = true;
@@ -243,7 +242,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 		return;
 	}
 
-	// Force down
+	// Update for game logic
 	if (SDL_GetTicks() - dropStartTime > dropInterval) {
 		activeTetremino.y += 1;
 		if (collisionDetected()) {
@@ -394,7 +393,6 @@ bool Tetris::gameOverAnimation() {
 		scoreSurface = TTF_RenderUTF8_Solid(font, std::string("Score: ").append(std::to_string(score)).c_str(), textColour);
 	}
 	SDL_Surface* tmpBackground = SDL_CreateRGBSurface(0, std::max(textSurface->w, scoreSurface->w) + FONT_SIZE, textSurface->h + scoreSurface->h + FONT_SIZE, 32, 0, 0, 0, 255);
-	SDL_FillRect(tmpBackground, nullptr, SDL_MapRGB(tmpBackground->format, 0, 0, 0));
 	
 	SDL_Rect tmpRect{};
 	tmpRect.x = (SCREEN_WIDTH - tmpBackground->w) / 2;

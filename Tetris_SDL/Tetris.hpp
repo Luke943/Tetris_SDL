@@ -62,6 +62,8 @@ class Tetris {
 	Tetremino activeTetremino{};
 
 public:
+	bool initSuccess = false;
+
 	Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appWindowSurface = nullptr, TTF_Font* appFont = nullptr, int appHighscore = 0);
 	~Tetris();
 	int playGame();

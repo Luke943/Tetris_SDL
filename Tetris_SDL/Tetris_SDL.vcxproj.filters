@@ -47,13 +47,10 @@
     <Image Include="tetris.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="background.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="playfieldborder.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="mainmenu.bmp">
+    <Image Include="menubackground.bmp">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="cursor.bmp">

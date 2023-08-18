@@ -14,7 +14,6 @@ A Tetris clone made using the SDL2 library.
 
 ### Structure
 - Break up MainMenu functionality: menu navigation and high level control
-- Switch raw pointers for smart pointers
-- Switch from C-style arrays
 - Parent class for menu and game (load assets, frame rate cap, etc)
+- Switch raw pointers for smart pointers
 - Restructure for better github hosting

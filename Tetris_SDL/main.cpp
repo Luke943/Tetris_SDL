@@ -4,9 +4,7 @@
 int main(int argc, char* args[]) {
 	if (initSDL()) {
 		MainMenu mainMenu{};
-		if (mainMenu.loadAssets()) {
-			mainMenu.run();
-		}
+		mainMenu.run();
 	}
 	closeSDL();
 	return 0;

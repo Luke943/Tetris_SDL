@@ -11,10 +11,11 @@
 #include "constants.hpp"
 #include "utils.hpp"
 
-Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appWindowSurface, TTF_Font* appFont) {
+Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appWindowSurface, TTF_Font* appFont, int appHighScore) {
 	window = appWindow;
 	screenSurface = appWindowSurface;
 	font = appFont;
+	highScore = appHighScore;
 
 	if (!loadAssets()) {
 		std::cout << "Failed to load game assets.\n";
@@ -25,23 +26,13 @@ Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appWindowSurface, TTF_Font* a
 	playFieldScreenPosRect.y = SCREEN_HEIGHT / 2 - playFieldBorder->h / 2;
 	playFieldScreenPosRect.w = playFieldBorder->w;
 	playFieldScreenPosRect.h = playFieldBorder->h;
-
 	blockScreenPosRect.w = BLOCK_SIZE;
 	blockScreenPosRect.h = BLOCK_SIZE;
-
 	blockSelectRect.w = BLOCK_SIZE;
 	blockSelectRect.h = BLOCK_SIZE;
 
-	highScorePos = { playFieldScreenPosRect.x - 7 * FONT_SIZE , playFieldScreenPosRect.y + 11 * BLOCK_SIZE };
-	scorePos = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 6 * BLOCK_SIZE };
-	levelPos = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 14 * BLOCK_SIZE };
-
-	bool success = true;
-	success &= drawTextToSurface("High Score", background, highScorePos.first, highScorePos.second - FONT_SIZE);
-	success &= drawTextToSurface("Score", background, scorePos.first, scorePos.second - FONT_SIZE);
-	success &= drawTextToSurface("Level", background, levelPos.first, levelPos.second - FONT_SIZE);
-	if (!success) {
-		std::cout << "Error drawing text to background\n";
+	if (!createTextBoxes()) {
+		std::cout << "Error creating text boxes\n";
 		this->~Tetris();
 	}
 
@@ -85,15 +76,39 @@ bool Tetris::loadAssets() {
 	return true;
 }
 
-bool Tetris::drawTextToSurface(std::string text, SDL_Surface* dst, int xPos, int yPos) {
-	SDL_Surface* tmpSurface = TTF_RenderUTF8_Solid_Wrapped(font, text.c_str(), textColour, 0);
+bool Tetris::createTextBoxes() {
+	textBoxRect[HIGHSCORE_BOX] = { playFieldScreenPosRect.x - 7 * FONT_SIZE, playFieldScreenPosRect.y + 11 * BLOCK_SIZE - FONT_SIZE, 0, 0 };
+	textBoxRect[SCORE_BOX] = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 6 * BLOCK_SIZE - FONT_SIZE, 0, 0 };
+	textBoxRect[LEVEL_BOX] = { playFieldScreenPosRect.x + playFieldScreenPosRect.w + BLOCK_SIZE , playFieldScreenPosRect.y + 14 * BLOCK_SIZE - FONT_SIZE, 0, 0 };
+
+	bool success = true;
+
+	success &= drawTextToSurface("High Score", background, &textBoxRect[HIGHSCORE_BOX]);
+	textBoxRect[HIGHSCORE_BOX].y += FONT_SIZE;
+	success &= drawTextToSurface(std::to_string(highScore), background, &textBoxRect[HIGHSCORE_BOX]);
+	success &= drawTextToSurface("Score", background, &textBoxRect[SCORE_BOX]);
+	textBoxRect[SCORE_BOX].y += FONT_SIZE;
+	success &= drawTextToSurface("Level", background, &textBoxRect[LEVEL_BOX]);
+	textBoxRect[LEVEL_BOX].y += FONT_SIZE;
+
+	SDL_Surface* pauseText = TTF_RenderUTF8_Solid(font, "Game paused", textColour);
+	pauseSurface = SDL_CreateRGBSurface(0, PLAY_FIELD_WIDTH * BLOCK_SIZE, PLAY_FIELD_HEIGHT * BLOCK_SIZE, 32, 0, 0, 0, 255);
+	if (!pauseText || !pauseSurface) {
+		return false;
+	}
+	SDL_FillRect(pauseSurface, nullptr, SDL_MapRGB(pauseSurface->format, 0, 0, 0));
+	SDL_Rect tmpRect = { (pauseSurface->w - pauseText->w) / 2, (pauseSurface->h - pauseText->h) / 2, 0, 0 };
+	success &= drawTextToSurface("Game paused", pauseSurface, &tmpRect);
+	textBoxRect[PAUSE_BOX] = { playFieldScreenPosRect.x + BLOCK_SIZE, playFieldScreenPosRect.y, 0, 0};
+	return success;
+}
+
+bool Tetris::drawTextToSurface(std::string text, SDL_Surface* dst, SDL_Rect* dstRect) {
+	SDL_Surface* tmpSurface = TTF_RenderUTF8_Solid(font, text.c_str(), textColour);
 	if (!tmpSurface) {
 		return false;
 	}
-	SDL_Rect tmpRect{};
-	tmpRect.y = yPos;
-	tmpRect.x = xPos;
-	SDL_BlitSurface(tmpSurface, nullptr, dst, &tmpRect);
+	SDL_BlitSurface(tmpSurface, nullptr, dst, dstRect);
 	SDL_FreeSurface(tmpSurface);
 	tmpSurface = nullptr;
 	return true;
@@ -297,9 +312,8 @@ void Tetris::drawToScreen() {
 	SDL_BlitSurface(playFieldBorder, nullptr, screenSurface, &playFieldScreenPosRect);
 	
 	// scores
-	drawTextToSurface("xxxxxxx", screenSurface, highScorePos.first, highScorePos.second);
-	drawTextToSurface(std::to_string(score), screenSurface, scorePos.first, scorePos.second);
-	drawTextToSurface(std::to_string(level), screenSurface, levelPos.first, levelPos.second);
+	drawTextToSurface(std::to_string(score), screenSurface, &textBoxRect[SCORE_BOX]);
+	drawTextToSurface(std::to_string(level), screenSurface, &textBoxRect[LEVEL_BOX]);
 
 	// activeTetremino
 	for (int j = 0; j < 4; j++) {
@@ -317,6 +331,10 @@ void Tetris::drawToScreen() {
 				drawBlock(i, j, playField[j][i]);
 			}
 		}
+	}
+
+	if (pause) {
+		SDL_BlitSurface(pauseSurface, nullptr, screenSurface, &textBoxRect[PAUSE_BOX]);
 	}
 
 	SDL_UpdateWindowSurface(window);
@@ -365,10 +383,18 @@ bool Tetris::gameOverAnimation() {
 		SDL_Delay(j * j);
 	}
 
-	SDL_Surface* textSurface = TTF_RenderUTF8_Solid_Wrapped(font, "Game Over", textColour, 0);
-	SDL_Surface* scoreSurface = TTF_RenderUTF8_Solid_Wrapped(font, std::string("Score: ").append(std::to_string(score)).c_str(), textColour, 0);
+	SDL_Surface* textSurface = nullptr;
+	SDL_Surface* scoreSurface = nullptr;
+	if (score > highScore) {
+		textSurface = TTF_RenderUTF8_Solid(font, "New High Score!", textColour);
+		scoreSurface = TTF_RenderUTF8_Solid(font, std::to_string(score).c_str(), textColour);
+	}
+	else {
+		textSurface = TTF_RenderUTF8_Solid(font, "Game Over", textColour);
+		scoreSurface = TTF_RenderUTF8_Solid(font, std::string("Score: ").append(std::to_string(score)).c_str(), textColour);
+	}
 	SDL_Surface* tmpBackground = SDL_CreateRGBSurface(0, std::max(textSurface->w, scoreSurface->w) + FONT_SIZE, textSurface->h + scoreSurface->h + FONT_SIZE, 32, 0, 0, 0, 255);
-	SDL_FillRect(tmpBackground, NULL, SDL_MapRGB(tmpBackground->format, 0, 0, 0));
+	SDL_FillRect(tmpBackground, nullptr, SDL_MapRGB(tmpBackground->format, 0, 0, 0));
 	
 	SDL_Rect tmpRect{};
 	tmpRect.x = (SCREEN_WIDTH - tmpBackground->w) / 2;

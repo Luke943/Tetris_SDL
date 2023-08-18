@@ -39,6 +39,7 @@ class Tetris {
 	SDL_Surface* background = nullptr;
 	SDL_Surface* playFieldBorder = nullptr;
 	SDL_Surface* blocks = nullptr;
+	SDL_Surface* pauseSurface = nullptr;
 
 	SDL_Color textColour = { 0xff, 0xff, 0xff };
 
@@ -47,12 +48,9 @@ class Tetris {
 	SDL_Rect blockSelectRect{};
 	SDL_Rect textBoxRect[TEXT_BOXES_TOTAL];
 
-	std::pair<int, int> highScorePos{};
-	std::pair<int, int> scorePos{};
-	std::pair<int, int> levelPos{};
-
 	std::vector<std::vector<BLOCK_COLOUR>> playField{};
 
+	int highScore = 0;
 	bool gameOver = false;
 	bool quit = false;
 	bool pause = false;
@@ -64,13 +62,14 @@ class Tetris {
 	Tetremino activeTetremino{};
 
 public:
-	Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appWindowSurface = nullptr, TTF_Font* appFont = nullptr);
+	Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appWindowSurface = nullptr, TTF_Font* appFont = nullptr, int appHighscore = 0);
 	~Tetris();
 	int playGame();
 
 private:
 	bool loadAssets();
-	bool drawTextToSurface(std::string srcText, SDL_Surface* dst, int xPos, int yPos);
+	bool createTextBoxes();
+	bool drawTextToSurface(std::string srcText, SDL_Surface* dst, SDL_Rect* dstRect);
 
 	GAME_COMMAND getInput();
 	void updateGame(GAME_COMMAND command);

@@ -14,11 +14,10 @@ class MainMenu {
 
 	enum MENU {
 		MAIN_MENU = 0,
-		HIGHSCORES_MENU,
+		HIGHSCORE_MENU,
 		CONTROLS_MENU,
 		MENUS_COUNT
 	};
-
 	
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
@@ -29,6 +28,8 @@ class MainMenu {
 	SDL_Color textColour = { 0xff, 0xff, 0xff };
 	SDL_Rect menuRect{};
 
+	int highScore{};
+
 public:
 	MainMenu();
 	~MainMenu();
@@ -37,4 +38,8 @@ public:
 
 private:
 	void displayMenu(MENU menu);
+	int getHighScore();
+	bool saveHighScore(int score);
+	void updateHighScoreMenu();
+	bool playTetris();
 };

@@ -92,4 +92,9 @@
       <Filter>Script Files</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="highscore.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

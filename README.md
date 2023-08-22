@@ -8,6 +8,7 @@ A Tetris clone made using the SDL2 library.
 - Graphical improvements - blocks, playfield, background, etc
 - Layout
 - Add sound
+- Icon
 
 ### Performance
 - Profile & reduce memory usage

@@ -111,7 +111,7 @@ void MainMenu::run() {
 					case SDLK_RETURN:
 						switch (cursorPosition) {
 						case PLAY:
-							quit = !playTetris();
+							quit = !playGame();
 							activeMenu = MAIN_MENU;
 							break;
 						case HIGH_SCORES:
@@ -178,7 +178,7 @@ bool MainMenu::saveHighScore(int score) {
 }
 
 
-bool MainMenu::playTetris() {
+bool MainMenu::playGame() {
 	std::cout << "Starting game.\n";
 	Tetris tetris(window, screenSurface, font, highScore);
 	if (!tetris.initSuccess) {

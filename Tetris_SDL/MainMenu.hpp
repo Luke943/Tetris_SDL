@@ -43,5 +43,5 @@ private:
 	int getHighScore();
 	bool saveHighScore(int score);
 	void updateHighScoreMenu();
-	bool playTetris();
+	bool playGame();
 };

@@ -79,8 +79,6 @@ private:
 
 	void spawnTetremino();
 	bool collisionDetected();
-	// void tetreminoLock();
-	// int lineCheck();
 
 	void drawBlock(int xPos, int yPos, BLOCK_COLOUR colour);
 	bool gameOverAnimation();

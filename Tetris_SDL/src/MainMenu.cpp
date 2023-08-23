@@ -44,12 +44,12 @@ MainMenu::~MainMenu() {
 }
 
 bool MainMenu::loadAssets() {
-	background = loadSurface("menubackground.bmp");
+	background = loadSurface(IMAGE_PATH + std::string("menubackground.bmp"));
 	if (!background) {
 		return false;
 	}
 	
-	cursor = loadSurface("cursor.bmp");
+	cursor = loadSurface(IMAGE_PATH + std::string("cursor.bmp"));
 	if (!cursor) {
 		return false;
 	}

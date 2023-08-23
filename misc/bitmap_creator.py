@@ -1,13 +1,5 @@
 from PIL import Image, ImageColor
 
-# img = Image.new( 'RGB', (255,255), "black") # Create a new black image
-# pixels = img.load() # Create the pixel map
-# for i in range(img.size[0]):    # For every pixel:
-#     for j in range(img.size[1]):
-#         pixels[i,j] = (i, j, 100) # Set the colour accordingly
-
-# img.show()
-
 block_size = 24
 colours = [
     ImageColor.getrgb("cyan"),
@@ -41,7 +33,6 @@ img.show()
 img.save("playfieldborder.bmp")
 
 # Blocks
-
 width = block_size * len(colours)
 height = block_size
 img = Image.new("RGB", (width, height))

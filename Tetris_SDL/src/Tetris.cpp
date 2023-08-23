@@ -61,13 +61,13 @@ bool Tetris::loadAssets() {
 		return false;
 	}
 
-	playFieldBorder = loadSurface("playfieldborder.bmp");
+	playFieldBorder = loadSurface(IMAGE_PATH + std::string("playfieldborder.bmp"));
 	if (!playFieldBorder) {
 		std::cout << "Error loading playfieldborder.bmp. SDL_Error : " << SDL_GetError() << "\n";
 		return false;
 	}
 
-	blocks = loadSurface("blocks.bmp");
+	blocks = loadSurface(IMAGE_PATH + std::string("blocks.bmp"));
 	if (!blocks) {
 		std::cout << "Error loading blocks.bmp. SDL_Error : " << SDL_GetError() << "\n";
 		return false;

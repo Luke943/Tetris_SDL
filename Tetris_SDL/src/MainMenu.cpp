@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <memory>
+
 #include "MainMenu.hpp"
 #include "constants.hpp"
 #include "Tetris.hpp"
@@ -189,10 +190,10 @@ bool MainMenu::playGame() {
 	if (score < 0) {
 		return false;
 	}
-	else if (score > highScore) {
+	if (score > highScore) {
 		highScore = score;
 		saveHighScore(score);
 		updateHighScoreMenu();
-		return true;
 	}
+	return true;
 }

@@ -55,7 +55,7 @@ class Tetris {
 	bool quit = false;
 	bool pause = false;
 	unsigned int lineCount = 0;
-	unsigned int score = 0;
+	int score = 0;
 	unsigned int level = 1;
 	unsigned int dropInterval = 800;
 	unsigned int dropStartTime{};

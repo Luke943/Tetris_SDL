@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+
 #include "constants.hpp"
 
 const int FRAME_RATE_CAP = 60;                 // frames per second

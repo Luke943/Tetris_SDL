@@ -1,3 +1,5 @@
+# Script for creating .bmp images for blocks in Tetris_SDL
+
 from PIL import Image, ImageColor
 
 block_size = 24

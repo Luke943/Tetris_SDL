@@ -2,7 +2,8 @@
 
 A Tetris clone made using the [SDL](https://www.libsdl.org/) development library.
 
-**Screenshot here**
+![Menu screenshot](misc/screenshot-menu.png)
+![Game screenshot](misc/screenshot-game.png)
 
 ### Dependencies
 
@@ -12,7 +13,7 @@ Tetris_SDL requires the following libraries:
 
 Versions of the required SDL2 libraries for Visual Studio are contained in the `dependencies` directory.
 
-## Build in Visual Studio 
+## Build in Visual Studio
 
 Clone the repository, open the solution file and build the `Tetris_SDL` project.
 
@@ -25,7 +26,7 @@ Here are some of my ideas of how to add to the project.
 ### Game
 - Add sound using the SDL mixer library
 - Graphical enhancements
-- Save multiple highscores with player name
+- Save highscores with player name
 
 ### Project
 - Add support for non-Visual Studio builds

@@ -15,7 +15,9 @@ Versions of the required SDL2 libraries for Visual Studio are contained in the `
 
 ## Build in Visual Studio
 
-Clone the repository, open the solution file and build the `Tetris_SDL` project.
+1. Clone the repository.
+1. Open the solution.
+1. Build the `Tetris_SDL` project.
 
 Build files are placed in the `bin` folder located in this directory.
 

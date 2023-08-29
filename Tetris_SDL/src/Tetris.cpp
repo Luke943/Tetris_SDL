@@ -10,12 +10,13 @@
 #include "Tetris.hpp"
 #include "constants.hpp"
 #include "utils.hpp"
+#include "GameEngine.hpp"
 
-Tetris::Tetris(SDL_Window* appWindow, SDL_Surface* appWindowSurface, TTF_Font* appFont, int appHighScore) {
-	window = appWindow;
-	screenSurface = appWindowSurface;
-	font = appFont;
-	highScore = appHighScore;
+Tetris::Tetris(GameEngine* gameEngine) {
+	window = gameEngine->window;
+	screenSurface = gameEngine->screenSurface;
+	font = gameEngine->font;
+	highScore = gameEngine->highScore;
 
 	if (!loadAssets()) {
 		std::cout << "Failed to load game assets.\n";
@@ -55,7 +56,7 @@ Tetris::~Tetris() {
 }
 
 bool Tetris::loadAssets() {
-	background = SDL_CreateRGBSurface(0, screenSurface->w, screenSurface->h, 32, 0, 0, 0, 255);
+	background = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 255);
 	if (!background) {
 		std::cout << "Error creating background surface\n";
 		return false;
@@ -113,7 +114,10 @@ bool Tetris::drawTextToSurface(std::string text, SDL_Surface* dst, SDL_Rect* dst
 	return true;
 }
 
-int Tetris::playGame() {
+int Tetris::run() {
+	if (!initSuccess) {
+		return -1;
+	}
 	unsigned int frameStartTime{};
 	GAME_COMMAND activeCommand{};
 	spawnTetremino();
@@ -124,8 +128,8 @@ int Tetris::playGame() {
 		frameStartTime = SDL_GetTicks();
 
 		activeCommand = getInput();
-		updateGame(activeCommand);
-		drawToScreen();
+		update(activeCommand);
+		render();
 
 		capFrameRate(frameStartTime);
 	}
@@ -183,7 +187,7 @@ Tetris::GAME_COMMAND Tetris::getInput() {
 	}
 }
 
-void Tetris::updateGame(GAME_COMMAND command) {
+void Tetris::update(GAME_COMMAND command) {
 	bool lockPiece = false;
 	
 	// Update for player input
@@ -280,7 +284,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 		}
 
 		if (lineCountCurrent) {
-			drawToScreen(); // A bit hacky to call this here
+			render(); // A bit hacky to call this here
 			SDL_Delay(dropInterval);
 			int offset = 0;
 			for (int j = PLAY_FIELD_HEIGHT - 1; j >= 0; j--) {
@@ -306,7 +310,7 @@ void Tetris::updateGame(GAME_COMMAND command) {
 	}
 }
 
-void Tetris::drawToScreen() {
+void Tetris::render() {
 	SDL_BlitSurface(background, nullptr, screenSurface, nullptr);
 	SDL_BlitSurface(playFieldBorder, nullptr, screenSurface, &playFieldScreenPosRect);
 	

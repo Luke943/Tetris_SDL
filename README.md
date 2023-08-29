@@ -23,14 +23,11 @@ Build files are placed in the `bin` folder located in this directory.
 
 ## Future additions & improvements
 
-Here are some of my ideas of how to add to the project.
+Here are some ideas of how to add to the project.
 
-### Game
 - Add sound using the SDL mixer library
 - Graphical enhancements
 - Save highscores with player name
-
-### Project
 - Add support for non-Visual Studio builds
 - Change console logging to a log file
-- Create top-level game engine class and clean up MainMenu & Tetris classes
+- Create parent GameState class for MainMenu & Tetris classes

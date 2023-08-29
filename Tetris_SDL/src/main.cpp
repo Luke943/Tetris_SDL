@@ -3,10 +3,8 @@
 
 int main(int argc, char* args[]) {
 	if (initSDL()) {
-		MainMenu mainMenu{};
-		if (mainMenu.initSuccess) {
-			mainMenu.run();
-		}
+		GameEngine gameEngine{};
+		gameEngine.run();
 	}
 	closeSDL();
 	return 0;

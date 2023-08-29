@@ -5,7 +5,9 @@
 
 #include <string>
 #include <utility>
+
 #include "Tetremino.hpp"
+#include "GameEngine.hpp"
 
 class Tetris {
 	enum GAME_COMMAND {
@@ -50,6 +52,7 @@ class Tetris {
 
 	std::vector<std::vector<BLOCK_COLOUR>> playField{};
 
+	bool initSuccess = false;
 	int highScore = 0;
 	bool gameOver = false;
 	bool quit = false;
@@ -62,11 +65,10 @@ class Tetris {
 	Tetremino activeTetremino{};
 
 public:
-	bool initSuccess = false;
 
-	Tetris(SDL_Window* appWindow = nullptr, SDL_Surface* appWindowSurface = nullptr, TTF_Font* appFont = nullptr, int appHighscore = 0);
+	Tetris(GameEngine* gameEngine);
 	~Tetris();
-	int playGame();
+	int run();
 
 private:
 	bool loadAssets();
@@ -74,8 +76,8 @@ private:
 	bool drawTextToSurface(std::string srcText, SDL_Surface* dst, SDL_Rect* dstRect);
 
 	GAME_COMMAND getInput();
-	void updateGame(GAME_COMMAND command);
-	void drawToScreen();
+	void update(GAME_COMMAND command);
+	void render();
 
 	void spawnTetremino();
 	bool collisionDetected();

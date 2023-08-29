@@ -10,21 +10,18 @@
 #include "constants.hpp"
 #include "Tetris.hpp"
 #include "utils.hpp"
+#include "GameEngine.hpp"
 
-MainMenu::MainMenu() {
-	
-	highScore = getHighScore();
+MainMenu::MainMenu(GameEngine* gameEngine) {
+	highScore = gameEngine->highScore;
+	window = gameEngine->window;
+	screenSurface = gameEngine->screenSurface;
+	font = gameEngine->font;
 
 	if (!loadAssets()) {
 		return;
 	}
 
-	window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-	if (!window) {
-		std::cout << "Error creating window. SDL_Error : " << SDL_GetError() << "\n";
-		return;
-	}
-	screenSurface = SDL_GetWindowSurface(window);
 	initSuccess = true;
 }
 
@@ -39,9 +36,6 @@ MainMenu::~MainMenu() {
 
 	SDL_FreeSurface(cursor);
 	cursor = nullptr;
-
-	SDL_DestroyWindow(window);
-	window = nullptr;
 }
 
 bool MainMenu::loadAssets() {
@@ -55,13 +49,8 @@ bool MainMenu::loadAssets() {
 		return false;
 	}
 
-	font = loadFont(FONT_NAME);
-	if (!font) {
-		return false;
-	}
-
 	menuScreens[MAIN_MENU] = TTF_RenderUTF8_Solid_Wrapped(font, "PLAY\nHIGH SCORE\nCONTROLS\nQUIT", textColour, 0);
-	updateHighScoreMenu();
+	menuScreens[HIGHSCORE_MENU] = TTF_RenderUTF8_Solid_Wrapped(font, ("HIGH SCORE\n\n" + std::to_string(highScore)).c_str(), textColour, 0);
 	menuScreens[CONTROLS_MENU] = TTF_RenderUTF8_Solid_Wrapped(
 		font,
 		"              CONTROLS\n\n"
@@ -79,7 +68,8 @@ bool MainMenu::loadAssets() {
 }
 
 
-void MainMenu::run() {
+int MainMenu::run() {
+	if (!initSuccess) return -1;
 	std::cout << "Running MainMenu.\n";
 	MAIN_MENU_OPTION cursorPosition = PLAY;
 	SDL_Rect cursorRect{};
@@ -112,9 +102,7 @@ void MainMenu::run() {
 					case SDLK_RETURN:
 						switch (cursorPosition) {
 						case PLAY:
-							quit = !playGame();
-							activeMenu = MAIN_MENU;
-							break;
+							return 1;
 						case HIGH_SCORES:
 							activeMenu = HIGHSCORE_MENU;
 							break;
@@ -122,8 +110,7 @@ void MainMenu::run() {
 							activeMenu = CONTROLS_MENU;
 							break;
 						case QUIT:
-							quit = true;
-							break;
+							return -1;
 						}
 					}
 				}
@@ -148,52 +135,48 @@ void MainMenu::displayMenu(MENU menu) {
 	SDL_BlitSurface(menuScreens[menu], nullptr, screenSurface, &menuRect);
 }
 
-int MainMenu::getHighScore() {
-	int highScore{};
-	std::ifstream file(SAVE_FILE);
-	if (file.is_open()) {
-		file >> highScore;
-		file.close();
-		std::cout << "High score found\n";
-		return highScore;
-	}
-	std::cout << "High score not found\n";
-	return 1000;
-}
-
-void MainMenu::updateHighScoreMenu() {
-	std::string highScoreString = "HIGH SCORE\n\n" + std::to_string(highScore);
-	menuScreens[HIGHSCORE_MENU] = TTF_RenderUTF8_Solid_Wrapped(font, highScoreString.c_str(), textColour, 0);
-}
-
-bool MainMenu::saveHighScore(int score) {
-	std::ofstream file(SAVE_FILE);
-	if (file.is_open()) {
-		file << std::to_string(score);
-		file.close();
-		std::cout << "High score saved\n";
-		return true;
-	}
-	std::cout << "Failed to save high score\n";
-	return false;
-}
-
-
-bool MainMenu::playGame() {
-	std::cout << "Starting game.\n";
-	Tetris tetris(window, screenSurface, font, highScore);
-	if (!tetris.initSuccess) {
-		return false;
-	}
-	int	score = tetris.playGame();
-	tetris.~Tetris();
-	if (score < 0) {
-		return false;
-	}
-	if (score > highScore) {
-		highScore = score;
-		saveHighScore(score);
-		updateHighScoreMenu();
-	}
-	return true;
-}
+//int MainMenu::getHighScore() {
+//	int highScore{};
+//	std::ifstream file(SAVE_FILE);
+//	if (file.is_open()) {
+//		file >> highScore;
+//		file.close();
+//		std::cout << "High score found\n";
+//		return highScore;
+//	}
+//	std::cout << "High score not found\n";
+//	return 1000;
+//}
+//
+//void MainMenu::updateHighScoreMenu() {
+//	std::string highScoreString = "HIGH SCORE\n\n" + std::to_string(highScore);
+//	menuScreens[HIGHSCORE_MENU] = TTF_RenderUTF8_Solid_Wrapped(font, highScoreString.c_str(), textColour, 0);
+//}
+//
+//bool MainMenu::saveHighScore(int score) {
+//	std::ofstream file(SAVE_FILE);
+//	if (file.is_open()) {
+//		file << std::to_string(score);
+//		file.close();
+//		std::cout << "High score saved\n";
+//		return true;
+//	}
+//	std::cout << "Failed to save high score\n";
+//	return false;
+//}
+//
+//bool MainMenu::playGame() {
+//	std::cout << "Starting game.\n";
+//	Tetris tetris(window, screenSurface, font, highScore);
+//	int	score = tetris.playGame();
+//	tetris.~Tetris();
+//	if (score < 0) {
+//		return false;
+//	}
+//	if (score > highScore) {
+//		highScore = score;
+//		saveHighScore(score);
+//		updateHighScoreMenu();
+//	}
+//	return true;
+//}

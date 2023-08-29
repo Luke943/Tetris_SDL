@@ -3,6 +3,8 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include "GameEngine.hpp"
+
 class MainMenu {
 	enum MAIN_MENU_OPTION {
 		PLAY = 0,
@@ -29,19 +31,15 @@ class MainMenu {
 	SDL_Rect menuRect{};
 
 	int highScore{};
-
-public:
 	bool initSuccess = false;
 
-	MainMenu();
+public:
+
+	MainMenu(GameEngine* gameEngine);
 	~MainMenu();
-	void run();
+	int run();
 
 private:
 	bool loadAssets();
 	void displayMenu(MENU menu);
-	int getHighScore();
-	bool saveHighScore(int score);
-	void updateHighScoreMenu();
-	bool playGame();
 };

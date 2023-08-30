@@ -76,16 +76,15 @@ int MainMenu::run() {
 	cursorRect.x = (SCREEN_WIDTH - menuScreens[MAIN_MENU]->w) / 2 - 30;
 	cursorRect.y = (SCREEN_HEIGHT - menuScreens[MAIN_MENU]->h) / 2;
 	SDL_Event e;
-	bool quit = false;
 	unsigned int frameStartTime{};
 	MENU activeMenu = MAIN_MENU;
 
-	while (!quit) {
+	while (true) {
 		frameStartTime = SDL_GetTicks();
 
 		while (SDL_PollEvent(&e) != 0) {
 			if (e.type == SDL_QUIT) {
-				quit = true;
+				return -1;
 			}
 			if (e.type == SDL_KEYDOWN) {
 				if (activeMenu != MAIN_MENU) {

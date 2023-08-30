@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -118,6 +120,7 @@ int Tetris::run() {
 	if (!initSuccess) {
 		return -1;
 	}
+	std::cout << "Running Tetris.\n";
 	unsigned int frameStartTime{};
 	GAME_COMMAND activeCommand{};
 	spawnTetremino();

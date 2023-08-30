@@ -7,3 +7,4 @@ const int FONT_SIZE = 24;
 const char IMAGE_PATH[] = "image/";
 const char FONT_NAME[] = "font/orbitonbold.ttf";
 const char SAVE_FILE[] = "saveddata/highscore.txt";
+const char LOG_FILE[] = "saveddata/tetris.log";

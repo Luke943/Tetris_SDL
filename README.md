@@ -16,18 +16,15 @@ Versions of the required SDL2 libraries for Visual Studio are contained in the `
 ## Build in Visual Studio
 
 1. Clone the repository.
-1. Open the solution.
+1. Open the `Tetris_SDL.sln` solution.
 1. Build the `Tetris_SDL` project.
 
-Build files are placed in the `bin` folder located in this directory.
+Build files are placed in a `bin` folder located in the solution directory.
 
 ## Future additions & improvements
 
-Here are some ideas of how to add to the project.
+Here are some ideas of how to add to the project:
 
-- Add sound using the SDL mixer library
-- Graphical enhancements
+- Add sound using the [SDL_mixer](https://github.com/libsdl-org/SDL_mixer) library
 - Save highscores with player name
-- Add support for non-Visual Studio builds
-- Change console logging to a log file
-- Create parent GameState class for MainMenu & Tetris classes
+- Change logging from `stdout` to a log file

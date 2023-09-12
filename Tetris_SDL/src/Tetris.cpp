@@ -13,6 +13,7 @@
 #include "constants.hpp"
 #include "utils.hpp"
 #include "GameEngine.hpp"
+#include "Logging.hpp"
 
 Tetris::Tetris(GameEngine* gameEngine) {
 	window = gameEngine->window;
@@ -21,7 +22,7 @@ Tetris::Tetris(GameEngine* gameEngine) {
 	highScore = gameEngine->highScore;
 
 	if (!loadAssets()) {
-		std::cout << "Failed to load game assets.\n";
+		CERR << "Failed to load game assets.";
 		return;
 	}
 	
@@ -35,7 +36,7 @@ Tetris::Tetris(GameEngine* gameEngine) {
 	blockSelectRect.h = BLOCK_SIZE;
 
 	if (!createTextBoxes()) {
-		std::cout << "Error creating text boxes\n";
+		CERR << "Error creating text boxes.";
 		return;
 	}
 
@@ -60,19 +61,17 @@ Tetris::~Tetris() {
 bool Tetris::loadAssets() {
 	background = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 255);
 	if (!background) {
-		std::cout << "Error creating background surface\n";
+		CERR << "Error creating background surface. SDL_Error : " << SDL_GetError();
 		return false;
 	}
 
-	playFieldBorder = loadSurface(IMAGE_PATH + std::string("playfieldborder.bmp"));
+	playFieldBorder = LoadSurface(IMAGE_PATH + std::string("playfieldborder.bmp"));
 	if (!playFieldBorder) {
-		std::cout << "Error loading playfieldborder.bmp. SDL_Error : " << SDL_GetError() << "\n";
 		return false;
 	}
 
-	blocks = loadSurface(IMAGE_PATH + std::string("blocks.bmp"));
+	blocks = LoadSurface(IMAGE_PATH + std::string("blocks.bmp"));
 	if (!blocks) {
-		std::cout << "Error loading blocks.bmp. SDL_Error : " << SDL_GetError() << "\n";
 		return false;
 	}
 
@@ -120,7 +119,7 @@ int Tetris::run() {
 	if (!initSuccess) {
 		return -1;
 	}
-	std::cout << "Running Tetris.\n";
+	LOGFILE << "Running Tetris...";
 	unsigned int frameStartTime{};
 	GAME_COMMAND activeCommand{};
 	spawnTetremino();
@@ -134,7 +133,7 @@ int Tetris::run() {
 		update(activeCommand);
 		render();
 
-		capFrameRate(frameStartTime);
+		CapFrameRate(frameStartTime);
 	}
 
 	if (gameOver) {
@@ -308,7 +307,8 @@ void Tetris::update(GAME_COMMAND command) {
 		spawnTetremino();
 		if (collisionDetected()) {
 			gameOver = true;
-			std::cout << "Game over\n";
+			
+			LOGFILE << "Game over. Score " << score << ".";
 		}
 	}
 }
@@ -399,8 +399,16 @@ bool Tetris::gameOverAnimation() {
 		textSurface = TTF_RenderUTF8_Solid(font, "Game Over", textColour);
 		scoreSurface = TTF_RenderUTF8_Solid(font, std::string("Score: ").append(std::to_string(score)).c_str(), textColour);
 	}
+	if (!textSurface || !scoreSurface) {
+		CERR << "Error creating gameover surfaces. SDL_Error: " << SDL_GetError();
+		return false;
+	}
 	SDL_Surface* tmpBackground = SDL_CreateRGBSurface(0, std::max(textSurface->w, scoreSurface->w) + FONT_SIZE, textSurface->h + scoreSurface->h + FONT_SIZE, 32, 0, 0, 0, 255);
-	
+	if (!tmpBackground) {
+		CERR << "Error creating gameover surfaces. SDL_Error: " << SDL_GetError();
+		return false;
+	}
+
 	SDL_Rect tmpRect{};
 	tmpRect.x = (SCREEN_WIDTH - tmpBackground->w) / 2;
 	tmpRect.y = (SCREEN_HEIGHT - tmpBackground->h) / 2;

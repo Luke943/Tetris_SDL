@@ -4,24 +4,22 @@
 #include <SDL_ttf.h>
 
 class GameEngine {
-	bool initSuccess = false;
-	bool play = false;
-
 public:
+	GameEngine();
+	~GameEngine();
+	
+	void run();
+
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 	TTF_Font* font = nullptr;
 	int highScore = 0;
 
-	GameEngine();
-	~GameEngine();
-
-	void run();
-
 private:
-	// void setLogFile(); TODO
 	int getHighScore();
 	bool saveHighScore(int score);
 
+	bool initSuccess = false;
+	bool play = false;
 };
 

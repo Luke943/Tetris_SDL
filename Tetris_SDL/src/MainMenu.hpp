@@ -6,6 +6,12 @@
 #include "GameEngine.hpp"
 
 class MainMenu {
+public:
+	MainMenu(GameEngine* gameEngine);
+	~MainMenu();
+	int run();
+
+private:
 	enum MAIN_MENU_OPTION {
 		PLAY = 0,
 		HIGH_SCORES,
@@ -20,6 +26,9 @@ class MainMenu {
 		CONTROLS_MENU,
 		MENUS_COUNT
 	};
+
+	bool loadAssets();
+	void displayMenu(MENU menu);
 	
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
@@ -32,14 +41,4 @@ class MainMenu {
 
 	int highScore{};
 	bool initSuccess = false;
-
-public:
-
-	MainMenu(GameEngine* gameEngine);
-	~MainMenu();
-	int run();
-
-private:
-	bool loadAssets();
-	void displayMenu(MENU menu);
 };

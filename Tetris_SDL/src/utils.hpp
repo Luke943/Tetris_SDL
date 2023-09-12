@@ -5,8 +5,8 @@
 
 #include <string>
 
-bool initSDL();
-void closeSDL();
-SDL_Surface* loadSurface(std::string path);
-TTF_Font* loadFont(std::string path);
-void capFrameRate(unsigned int startTime);
+bool Utils_Init();
+void Utils_Close();
+SDL_Surface* LoadSurface(std::string path);
+TTF_Font* LoadFont(std::string path);
+void CapFrameRate(unsigned int startTime);

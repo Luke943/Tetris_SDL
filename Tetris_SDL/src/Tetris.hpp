@@ -10,6 +10,13 @@
 #include "GameEngine.hpp"
 
 class Tetris {
+public:
+
+	Tetris(GameEngine* gameEngine);
+	~Tetris();
+	int run();
+
+private:
 	enum GAME_COMMAND {
 		NO_COMMAND,
 		MOVE_LEFT,
@@ -30,6 +37,17 @@ class Tetris {
 		PAUSE_BOX,
 		TEXT_BOXES_TOTAL
 	};
+
+	bool loadAssets();
+	bool createTextBoxes();
+	bool drawTextToSurface(std::string srcText, SDL_Surface* dst, SDL_Rect* dstRect);
+	GAME_COMMAND getInput();
+	void update(GAME_COMMAND command);
+	void render();
+	void spawnTetremino();
+	bool collisionDetected();
+	void drawBlock(int xPos, int yPos, BLOCK_COLOUR colour);
+	bool gameOverAnimation();
 	
 	const int ROW_CLEAR_POINTS[5] = { 0, 100, 300, 500, 800 };
 	const int PLAY_FIELD_WIDTH = 10;
@@ -63,25 +81,4 @@ class Tetris {
 	unsigned int dropInterval = 800;
 	unsigned int dropStartTime{};
 	Tetremino activeTetremino{};
-
-public:
-
-	Tetris(GameEngine* gameEngine);
-	~Tetris();
-	int run();
-
-private:
-	bool loadAssets();
-	bool createTextBoxes();
-	bool drawTextToSurface(std::string srcText, SDL_Surface* dst, SDL_Rect* dstRect);
-
-	GAME_COMMAND getInput();
-	void update(GAME_COMMAND command);
-	void render();
-
-	void spawnTetremino();
-	bool collisionDetected();
-
-	void drawBlock(int xPos, int yPos, BLOCK_COLOUR colour);
-	bool gameOverAnimation();
 };

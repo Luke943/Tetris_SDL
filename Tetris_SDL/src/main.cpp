@@ -3,12 +3,13 @@
 
 #include "GameEngine.hpp"
 #include "utils.hpp"
+#include "constants.hpp"
 
 int main(int argc, char* args[]) {
-	if (initSDL()) {
+	if (Utils_Init()) {
 		GameEngine gameEngine{};
 		gameEngine.run();
 	}
-	closeSDL();
+	Utils_Close();
 	return 0;
 }

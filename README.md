@@ -27,4 +27,3 @@ Here are some ideas of how to add to the project:
 
 - Add sound using the [SDL_mixer](https://github.com/libsdl-org/SDL_mixer) library
 - Save highscores with player name
-- Change logging from `stdout` to a log file

@@ -18,14 +18,13 @@ enum BLOCK_COLOUR {
 };
 
 class Tetremino {
-
 public:
+	Tetremino(int i = 0);
+	void rotateRight();
+	void rotateLeft();
+
 	BLOCK_COLOUR colour;
 	int x = 0;
 	int y = 0;
 	char shape[4][4];
-
-	Tetremino(int i = 0);
-	void rotateRight();
-	void rotateLeft();
 };

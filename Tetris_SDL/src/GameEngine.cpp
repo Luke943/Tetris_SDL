@@ -9,15 +9,16 @@
 #include "Tetris.hpp"
 #include "constants.hpp"
 #include "utils.hpp"
+#include "Logging.hpp"
 
 GameEngine::GameEngine() {
 	window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	if (!window) {
-		std::cout << "Error creating window. SDL_Error : " << SDL_GetError() << "\n";
+		CERR << "Error creating window. SDL_Error : " << SDL_GetError();
 		return;
 	}
 	screenSurface = SDL_GetWindowSurface(window);
-	font = loadFont(FONT_NAME);
+	font = LoadFont(FONT_FILENAME);
 	highScore = getHighScore();
 	initSuccess = true;
 }
@@ -52,25 +53,25 @@ void GameEngine::run() {
 
 int GameEngine::getHighScore() {
 	int highScore{};
-	std::ifstream file(SAVE_FILE);
+	std::ifstream file(SAVE_FILENAME);
 	if (file.is_open()) {
 		file >> highScore;
 		file.close();
-		std::cout << "High score " << highScore << " found\n";
+		LOGFILE << "High score " << highScore << " found.";
 		return highScore;
 	}
-	std::cout << "High score not found\n";
+	LOGFILE << "High score not found";
 	return 0;
 }
 
 bool GameEngine::saveHighScore(int score) {
-	std::ofstream file(SAVE_FILE);
+	std::ofstream file(SAVE_FILENAME);
 	if (file.is_open()) {
 		file << std::to_string(score);
 		file.close();
-		std::cout << "High score " << score << " saved\n";
+		LOGFILE << "High score " << score << " saved.";
 		return true;
 	}
-	std::cout << "Failed to save high score\n";
+	CERR << "Failed to save high score.";
 	return false;
 }

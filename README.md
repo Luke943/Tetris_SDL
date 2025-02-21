@@ -20,10 +20,3 @@ Versions of the required SDL2 libraries for Visual Studio are contained in the `
 1. Build the `Tetris_SDL` project.
 
 Build files are placed in a `bin` folder located in the solution directory.
-
-## Future additions & improvements
-
-Here are some ideas of how to add to the project:
-
-- Add sound using the [SDL_mixer](https://github.com/libsdl-org/SDL_mixer) library
-- Save highscores with player name
